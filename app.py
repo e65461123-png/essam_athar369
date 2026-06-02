@@ -2,9 +2,9 @@ from flask import Flask, render_template
 
 app = Flask(__name__)
 
-# هذا المسار يفتح صفحة الدخول مباشرة
+# هذا الكود يجبر الموقع على فتح صفحة الدخول فوراً
 @app.route('/')
-def index():
+def home():
     return render_template('login.html')
 
 if __name__ == '__main__':

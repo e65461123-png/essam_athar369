@@ -80,6 +80,35 @@ def dashboard():
     if "user" not in session:
         return redirect("/login")
 
+    from flask import Flask, render_template, request, redirect, url_for, session
+
+app = Flask(__name__)
+app.secret_key = 'your_secret_key_here' # قم بتغيير هذه القيمة لشيء خاص بك
+
+@app.route('/', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        user = request.form.get('username')
+        password = request.form.get('password')
+        
+        # هنا تضع اسم المستخدم وكلمة المرور الخاصة بك
+        if user == "admin" and password == "12345":
+            session['logged_in'] = True
+            return redirect(url_for('dashboard'))
+        else:
+            return "خطأ: بيانات الدخول غير صحيحة"
+            
+    return render_template('login.html')
+
+@app.route('/dashboard')
+def dashboard():
+    if not session.get('logged_in'):
+        return redirect(url_for('login'))
+    return render_template('index.html')
+
+if __name__ == '__main__':
+    app.run()
+
     return render_template("dashboard.html", user=session["user"])
 
 # ======================
@@ -102,3 +131,4 @@ def logout():
 
 if __name__ == "__main__":
     app.run(debug=True)
+    

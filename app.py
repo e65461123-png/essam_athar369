@@ -1,23 +1,17 @@
-from flask import Flask, render_template_string, request, redirect, session, url_for
-import requests
+from flask import Flask, render_template_string, request, redirect, session, url_for, g
 
 app = Flask(__name__)
 app.secret_key = "ATHEER_369_NUCLEAR_CORE"
 
-# إعدادات تليجرام (ضع توكن البوت الخاص بك وID حسابك هنا)
-TELEGRAM_TOKEN = "YOUR_BOT_TOKEN" 
-CHAT_ID = "YOUR_CHAT_ID"
+# نظام اللغات الشامل
+LANGUAGES = {
+    'ar': {'title': 'ATHEER 369 - منصة الوساطة المالية', 'invest': 'تفعيل التدفق المالي', 'vault': 'الخزنة الخاصة', 'logout': 'تسجيل خروج', 'amount': 'قيمة الاستثمار'},
+    'en': {'title': 'ATHEER 369 - Financial Brokerage', 'invest': 'Activate Cash Flow', 'vault': 'Private Vault', 'logout': 'Logout', 'amount': 'Investment Amount'},
+    'fr': {'title': 'ATHEER 369 - Courtage Financier', 'invest': 'Activer le flux', 'vault': 'Coffre-fort', 'logout': 'Déconnexion', 'amount': 'Montant'}
+}
 
-vault = {"total_invested": 0, "my_commission": 0}
-
-STYLE = """
-<style>
-    body { background: #000; color: #0f0; font-family: 'Courier New', monospace; margin: 0; }
-    .card { border: 1px solid #0f0; padding: 20px; width: 350px; margin: 20px auto; text-align: center; box-shadow: 0 0 15px #0f0; }
-    button { width: 100%; padding: 10px; background: #0f0; color: #000; border: none; font-weight: bold; cursor: pointer; margin-top: 10px; }
-    .ticker { background: #111; padding: 10px; color: #0f0; border-bottom: 1px solid #0f0; overflow: hidden; white-space: nowrap; }
-</style>
-"""
+@app.before_request
+def load_lang(): g.lang = session.get('lang', 'ar')
 
 @app.route("/", methods=["GET", "POST"])
 def home():
@@ -25,38 +19,32 @@ def home():
         if request.form.get("username") == "Essam369" and request.form.get("password") == "369369":
             session["logged_in"] = True
             return redirect(url_for('dashboard'))
-    return render_template_string(STYLE + "<body><div class='card'><h1>LOGIN</h1><form method='post'><input name='username' placeholder='USER'><input name='password' type='password' placeholder='PASS'><button>دخول القيادة</button></form></div></body>")
+    return render_template_string("<body style='background:#000; color:#0f0; text-align:center; padding-top:100px;'><h1>LOGIN</h1><form method='post'><input name='username' placeholder='USER'><br><input name='password' type='password' placeholder='PASS'><br><button>ENTER</button></form></body>")
 
 @app.route("/dashboard", methods=["GET", "POST"])
 def dashboard():
     if not session.get("logged_in"): return redirect(url_for('home'))
-    
+    # منطق الخزنة
     if request.method == "POST":
         amount = float(request.form.get("amount", 0))
-        vault["my_commission"] += (amount * 0.10)
-        vault["total_invested"] += amount
-        
-        # إرسال تنبيه تليجرام فوري
-        msg = f"عملية استثمار جديدة! المبلغ: ${amount} | عمولتك: ${amount * 0.10}"
-        requests.get(f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage?chat_id={CHAT_ID}&text={msg}")
-        
+        session['vault'] = session.get('vault', 0) + (amount * 0.10)
         return redirect(url_for('dashboard'))
-
+    
     return render_template_string(f"""
-    {STYLE}
-    <body>
-        <div class='ticker'>الذهب: $2350 | البيتكوين: $68000 | USD: 1.00 | ATHEER AI: نشط...</div>
-        <div class='card'>
-            <h2>غرفة العمليات</h2>
-            <p>إجمالي الاستثمارات: ${vault['total_invested']}</p>
-            <p style='color: gold;'>رصيد الخزنة (10%): ${vault['my_commission']}</p>
-            <form method='post'><input name='amount' placeholder='قيمة الاستثمار'>
-            <button name='invest'>تفعيل التدفق المالي</button></form>
-            <a href="mailto:your_email@gmail.com"><button style='background: #00f; color: #fff;'>مراسلة القيادة</button></a>
-            <a href="/logout" style='color:red; display:block; margin-top:10px;'>تسجيل خروج</a>
+    <body style='background:#000; color:#0f0; font-family:monospace; text-align:center;'>
+        <nav><a href='/lang/ar'>AR</a> | <a href='/lang/en'>EN</a> | <a href='/lang/fr'>FR</a></nav>
+        <h1>{{{{LANGUAGES[g.lang]['title']}}}}</h1>
+        <div style='border:1px solid #0f0; width:300px; margin:auto; padding:20px;'>
+            <p>{{{{LANGUAGES[g.lang]['vault']}}}}: ${session.get('vault', 0):.2f}</p>
+            <form method='post'><input name='amount' placeholder='{{{{LANGUAGES[g.lang]['amount']}}}}'><br>
+            <button>{{{{LANGUAGES[g.lang]['invest']}}}}</button></form>
         </div>
+        <br><a href='/logout' style='color:red;'>{{{{LANGUAGES[g.lang]['logout']}}}}</a>
     </body>
-    """)
+    """, LANGUAGES=LANGUAGES)
+
+@app.route("/lang/<l>")
+def set_lang(l): session['lang'] = l; return redirect(url_for('dashboard'))
 
 @app.route("/logout")
 def logout(): session.clear(); return redirect(url_for('home'))

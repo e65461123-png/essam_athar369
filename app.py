@@ -1,56 +1,54 @@
 from flask import Flask, render_template_string, request, redirect, session
 
 app = Flask(__name__)
-app.secret_key = "ATHEER_369_PRO_SECURE"
+app.secret_key = "ATHEER_369_ULTIMATE_KEY"
 
-# بيانات الدخول (يمكنك تغييرها)
+# بيانات الدخول الرسمية
 ADMIN_USER = "Essam369"
 ADMIN_PASSWORD = "369369"
 
-# التصميم العام (واجهة عصرية)
+# التصميم العسكري الرقمي (CSS)
 STYLE = """
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 <style>
-    body { background: #0a0a0a; color: #fff; font-family: 'Segoe UI', sans-serif; }
-    .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-    .btn-gradient { background: linear-gradient(45deg, #6a11cb, #2575fc); color: white; border: none; padding: 10px 25px; border-radius: 10px; }
-    .nav-icon { font-size: 1.5rem; margin-bottom: 10px; color: #00d4ff; }
+    body { background: #000; color: #0f0; font-family: 'Courier New', monospace; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+    .card { border: 1px solid #0f0; padding: 25px; width: 320px; text-align: center; box-shadow: 0 0 20px #0f0; border-radius: 10px; }
+    input { width: 100%; padding: 12px; margin: 10px 0; background: #111; border: 1px solid #0f0; color: #0f0; box-sizing: border-box; }
+    button { width: 100%; padding: 12px; background: #0f0; color: #000; border: none; font-weight: bold; cursor: pointer; transition: 0.3s; }
+    button:hover { background: #fff; }
+    .radar { width: 150px; height: 150px; border: 2px solid #0f0; border-radius: 50%; margin: 20px auto; position: relative; display: flex; align-items: center; justify-content: center; }
+    .status { color: #0f0; font-size: 0.9em; margin-bottom: 15px; text-transform: uppercase; }
 </style>
 """
 
 # صفحة تسجيل الدخول
 LOGIN_PAGE = f"""
-<!DOCTYPE html><html><head><title>ATHEER 369 | Login</title>{STYLE}</head>
-<body class="d-flex justify-content-center align-items-center vh-100">
-    <div class="glass text-center" style="width: 350px;">
-        <i class="fas fa-rocket nav-icon"></i>
-        <h3>ATHEER 369</h3>
-        <form method="post" class="mt-4">
-            <input name="username" class="form-control bg-dark text-white border-0 mb-3" placeholder="اسم المستخدم" required>
-            <input name="password" type="password" class="form-control bg-dark text-white border-0 mb-3" placeholder="كلمة المرور" required>
-            <button type="submit" class="btn btn-gradient w-100">دخول المنصة</button>
-        </form>
-    </div>
-</body></html>
+<!DOCTYPE html><html><head><title>Login | ATHEER 369</title>{STYLE}</head>
+<body><div class="card">
+    <h1>ATHEER 369</h1>
+    <form method="post">
+        <input name="username" placeholder="اسم المستخدم" required>
+        <input name="password" type="password" placeholder="كلمة المرور" required>
+        <button type="submit">دخول إلى غرفة القيادة</button>
+    </form>
+</div></body></html>
 """
 
-# غرفة العمليات (لوحة الإدارة)
+# صفحة غرفة العمليات (لوحة التحكم)
 DASHBOARD = f"""
-<!DOCTYPE html><html><head><title>ATHEER 369 | Control Center</title>{STYLE}</head>
-<body class="p-4">
-    <div class="container-fluid">
-        <div class="d-flex justify-content-between align-items-center mb-5">
-            <h2><i class="fas fa-terminal"></i> غرفة العمليات</h2>
-            <a href="/logout" class="btn btn-danger">تسجيل خروج</a>
-        </div>
-        <div class="row">
-            <div class="col-md-4"><div class="glass text-center"><i class="fas fa-users nav-icon"></i><h4>المستخدمين</h4><p>1,240</p></div></div>
-            <div class="col-md-4"><div class="glass text-center"><i class="fas fa-server nav-icon"></i><h4>حالة السيرفر</h4><p>نشط 100%</p></div></div>
-            <div class="col-md-4"><div class="glass text-center"><i class="fas fa-shield-alt nav-icon"></i><h4>الحماية</h4><p>مفعلة (Secure)</p></div></div>
-        </div>
+<!DOCTYPE html><html><head><title>Control Center | ATHEER 369</title>{STYLE}</head>
+<body><div class="card" style="width: 350px;">
+    <h1>ATHEER 369</h1>
+    <div class="status">SYSTEM STATUS: ● ONLINE</div>
+    <div class="radar">369</div>
+    <div style="text-align: right; border: 1px solid #0f0; padding: 15px; margin-bottom: 15px; font-size: 0.9em;">
+        <p>القائد: عصام الكومي</p>
+        <p>رصيد المحفظة: USD 369.00</p>
+        <p>الزوار الآن: 0007</p>
     </div>
-</body></html>
+    <button>تفعيل بوابة التدفق المالي</button><br><br>
+    <button>مراسلة غرفة القيادة (GMAIL)</button><br><br>
+    <a href="/logout" style="color: #f00; text-decoration: none;">تسجيل خروج</a>
+</div></body></html>
 """
 
 @app.route("/", methods=["GET", "POST"])
@@ -59,7 +57,7 @@ def home():
         if request.form.get("username") == ADMIN_USER and request.form.get("password") == ADMIN_PASSWORD:
             session["logged_in"] = True
             return redirect("/dashboard")
-        return "بيانات خطأ!"
+        return "بيانات خطأ! <a href='/'>رجوع</a>"
     return render_template_string(LOGIN_PAGE)
 
 @app.route("/dashboard")
@@ -68,9 +66,6 @@ def dashboard():
     return render_template_string(DASHBOARD)
 
 @app.route("/logout")
-def logout():
-    session.clear()
-    return redirect("/")
+def logout(): session.clear(); return redirect("/")
 
-if __name__ == "__main__":
-    app.run()
+if __name__ == "__main__": app.run()

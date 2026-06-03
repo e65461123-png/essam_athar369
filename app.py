@@ -1,7 +1,8 @@
 from flask import Flask, render_template
+import os
 
-# السطر الذي سألت عنه، يدمج البحث في المجلد الحالي
-app = Flask(__name__, template_folder='.')
+# إعداد Flask للبحث في المجلد الحالي مباشرة
+app = Flask(__name__, template_folder=os.path.abspath(os.path.dirname(__file__)))
 
 @app.route('/')
 def home():

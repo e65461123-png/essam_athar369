@@ -1,52 +1,43 @@
 from flask import Flask, render_template_string, request, session, redirect, url_for, g
-from datetime import datetime
+import random
 
 app = Flask(__name__)
-app.secret_key = "ATHEER_369_PRO_CORE"
+app.secret_key = "ATHEER_369_FINAL_PRO"
 
-# تخزين العمليات في ذاكرة مؤقتة للمنصة
-if 'transactions' not in globals():
-    transactions = []
-
-CONTENT = {
-    'ar': {'title': 'منصة ATHEER 369 المالية', 'vault': 'رصيد الخزنة:', 'invest': 'تفعيل التدفق', 'amount': 'أدخل المبلغ', 'history': 'سجل العمليات'},
-    'en': {'title': 'ATHEER 369 Financial Portal', 'vault': 'Vault Balance:', 'invest': 'Activate Flow', 'amount': 'Enter Amount', 'history': 'Transaction History'}
+# بيانات المحرك المالي واللغات
+DATA = {
+    'ar': {'title': 'منصة ATHEER 369 للوساطة', 'vault': 'الخزنة:', 'invest': 'تفعيل', 'ticker': 'السوق'},
+    'en': {'title': 'ATHEER 369 Brokerage', 'vault': 'Vault:', 'invest': 'Activate', 'ticker': 'Market'},
+    'es': {'title': 'ATHEER 369 Brokerage', 'vault': 'Bóveda:', 'invest': 'Activar', 'ticker': 'Mercado'}
 }
 
 @app.before_request
-def setup_lang(): g.lang = session.get('lang', 'ar')
+def setup(): g.lang = session.get('lang', 'ar')
 
 @app.route("/", methods=["GET", "POST"])
 def index():
     if request.method == "POST":
         amount = float(request.form.get("amount", 0))
         session['vault'] = session.get('vault', 0) + (amount * 0.10)
-        # إضافة العملية للسجل
-        transactions.append({'amount': amount, 'time': datetime.now().strftime("%H:%M:%S")})
+    
+    # محاكاة أسعار حية
+    prices = f"GOLD: ${2300 + random.random()} | BTC: ${68000 + random.randint(1,100)}"
     
     template = """
     <body style="background:#000; color:#0f0; font-family:monospace; text-align:center;">
-        <nav><a href="/set/ar">AR</a> | <a href="/set/en">EN</a></nav>
-        <h1>%s</h1>
-        <div style="border:2px solid #0f0; width:350px; margin:20px auto; padding:20px;">
-            <h3>%s $%s</h3>
-            <form method="post">
-                <input name="amount" type="number" step="0.01" placeholder="%s" style="background:#000; color:#fff; border:1px solid #0f0;">
-                <button type="submit" style="background:#0f0; border:none; padding:5px 15px;">%s</button>
-            </form>
-        </div>
-        <div style="width:350px; margin:auto; border-top:1px solid #0f0; padding:10px;">
-            <h4>%s</h4>
-            %s
+        <div style="background:#111; padding:10px; border-bottom:1px solid #0f0;">{{ DATA[g.lang]['ticker'] }}: {{ prices }}</div>
+        <nav style="padding:10px;"><a href="/lang/ar">AR</a> | <a href="/lang/en">EN</a> | <a href="/lang/es">ES</a></nav>
+        <h1>{{ DATA[g.lang]['title'] }}</h1>
+        <div style="border:1px solid #0f0; width:300px; margin:20px auto; padding:20px;">
+            <p>{{ DATA[g.lang]['vault'] }} ${{ "%.2f"|format(session.get('vault', 0)) }}</p>
+            <form method="post"><input name="amount" type="number" placeholder="Amount" style="background:#000; color:#0f0; border:1px solid #0f0;"><br><br>
+            <button style="background:#0f0; border:none; padding:10px 20px;">{{ DATA[g.lang]['invest'] }}</button></form>
         </div>
     </body>
-    """ % (CONTENT[g.lang]['title'], CONTENT[g.lang]['vault'], "{:.2f}".format(session.get('vault', 0)), 
-           CONTENT[g.lang]['amount'], CONTENT[g.lang]['invest'], CONTENT[g.lang]['history'], 
-           "<br>".join([f"Transaction: ${t['amount']} at {t['time']}" for t in transactions[-5:]]))
-    
-    return render_template_string(template)
+    """
+    return render_template_string(template, DATA=DATA, prices=prices)
 
-@app.route("/set/<lang>")
-def set_lang(lang): session['lang'] = lang; return redirect(url_for('index'))
+@app.route("/lang/<l>")
+def set_lang(l): session['lang'] = l; return redirect(url_for('index'))
 
 if __name__ == "__main__": app.run()

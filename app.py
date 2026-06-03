@@ -1,109 +1,61 @@
-from flask import Flask, render_template_string, request, redirect, session, url_for
+from flask import Flask, render_template_string, request, redirect, session
 
 app = Flask(__name__)
-app.secret_key = "ATHEER369_SECRET"
+# قم بتغيير هذه المفتاح السري لشيء خاص بك
+app.secret_key = "ATHEER_369_SUPER_SECURE_KEY_2026"
 
-LOGIN_PAGE = """
-<!DOCTYPE html>
-<html dir="rtl">
-<head>
-<meta charset="UTF-8">
-<title>ATHEER 369</title>
+# كلمة المرور الخاصة بلوحة التحكم
+ADMIN_PASSWORD = "your_secure_password_here" 
+
+# التصميم والمظهر (Glassmorphism UI)
+THEME = """
 <style>
-body{
-background:#0a0a0a;
-color:white;
-font-family:Arial;
-text-align:center;
-padding:50px;
-}
-input{
-padding:10px;
-margin:5px;
-width:250px;
-}
-button{
-padding:10px 20px;
-background:#6a00ff;
-color:white;
-border:none;
-cursor:pointer;
-}
+    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
+    body { background: #050505; color: #fff; font-family: 'Cairo', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+    .glass { background: rgba(255, 255, 255, 0.05); padding: 40px; border-radius: 25px; backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.1); text-align: center; width: 350px; box-shadow: 0 8px 32px 0 rgba(0,0,0,0.37); }
+    input { width: 100%; padding: 15px; margin: 15px 0; border-radius: 12px; border: none; background: rgba(0,0,0,0.3); color: white; box-sizing: border-box; outline: none; border: 1px solid #444; }
+    button { width: 100%; padding: 15px; background: linear-gradient(135deg, #6a00ff, #ff007f); border: none; border-radius: 12px; color: white; cursor: pointer; font-weight: bold; font-size: 16px; transition: 0.3s; }
+    button:hover { transform: scale(1.05); }
+    h1 { margin-bottom: 20px; letter-spacing: 2px; }
 </style>
-</head>
-<body>
-<h1>🚀 ATHEER 369 PLATFORM</h1>
-<form method="post">
-<input name="username" placeholder="اسم المستخدم"><br>
-<input name="password" type="password" placeholder="كلمة المرور"><br>
-<button type="submit">دخول</button>
-</form>
-</body>
-</html>
 """
 
-DASHBOARD = """
-<!DOCTYPE html>
-<html dir="rtl">
-<head>
-<meta charset="UTF-8">
-<title>ATHEER 369</title>
-<style>
-body{
-background:#111;
-color:white;
-font-family:Arial;
-text-align:center;
-}
-.card{
-background:#1d1d1d;
-padding:20px;
-margin:20px;
-border-radius:15px;
-}
-</style>
-</head>
-<body>
+LOGIN_HTML = f"""
+<!DOCTYPE html><html dir="rtl"><head><title>Login | ATHEER 369</title>{THEME}</head>
+<body><div class="glass">
+    <h1>🚀 ATHEER 369</h1>
+    <form method="post"><input name="password" type="password" placeholder="أدخل كلمة المرور" required>
+    <button type="submit">دخول إلى المنصة</button></form>
+</div></body></html>
+"""
 
-<h1>🔥 ATHEER 369 CONTROL CENTER</h1>
-
-<div class="card">
-<h2>مرحباً {{user}}</h2>
-<p>Platform Active 🟢</p>
-</div>
-
-<div class="card">
-<h3>لوحة التحكم</h3>
-<p>إدارة المستخدمين</p>
-<p>غرفة العمليات</p>
-<p>سجل النشاط</p>
-</div>
-
-<a href="/logout">
-<button>تسجيل الخروج</button>
-</a>
-
-</body>
-</html>
+DASHBOARD_HTML = f"""
+<!DOCTYPE html><html dir="rtl"><head><title>Dashboard | ATHEER 369</title>{THEME}</head>
+<body><div class="glass" style="width: 500px;">
+    <h1>مرحباً بك في المركز الرئيسي</h1>
+    <p style="color: #00ffaa; font-size: 1.2em;">النظام يعمل بكامل قوته 🟢</p>
+    <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 15px; margin: 20px 0;">
+        <p>إجمالي المستخدمين: 1,240</p>
+        <p>حالة الخادم: مستقر</p>
+    </div>
+    <a href="/logout"><button style="background: #ff4444;">تسجيل الخروج</button></a>
+</div></body></html>
 """
 
 @app.route("/", methods=["GET", "POST"])
 def home():
     if request.method == "POST":
-        session["user"] = request.form["username"]
-        return redirect("/dashboard")
-
-    return render_template_string(LOGIN_PAGE)
+        if request.form.get("password") == ADMIN_PASSWORD:
+            session["logged_in"] = True
+            return redirect("/dashboard")
+        return "كلمة مرور خاطئة! <a href='/'>رجوع</a>"
+    return render_template_string(LOGIN_HTML)
 
 @app.route("/dashboard")
 def dashboard():
-    if "user" not in session:
+    if not session.get("logged_in"):
         return redirect("/")
-
-    return render_template_string(
-        DASHBOARD,
-        user=session["user"]
-    )
+    return render_template_string(DASHBOARD_HTML)
 
 @app.route("/logout")
 def logout():
@@ -111,4 +63,4 @@ def logout():
     return redirect("/")
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    app.run()

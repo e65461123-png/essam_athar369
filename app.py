@@ -1,6 +1,6 @@
 from flask import Flask, render_template
 
-# السطر التالي يخبر Flask أن يبحث عن الملفات في نفس المجلد الذي يوجد فيه app.py
+# السطر الذي سألت عنه، يدمج البحث في المجلد الحالي
 app = Flask(__name__, template_folder='.')
 
 @app.route('/')

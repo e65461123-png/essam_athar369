@@ -1,52 +1,39 @@
-from flask import Flask, render_template_string, request, redirect, session, url_for, g
+from flask import Flask, render_template_string, request, session, redirect, url_for, g
 
 app = Flask(__name__)
-app.secret_key = "ATHEER_369_NUCLEAR_CORE"
+app.secret_key = "ATHEER_369_ULTIMATE_CORE"
 
-# نظام اللغات الشامل
-LANGUAGES = {
-    'ar': {'title': 'ATHEER 369 - منصة الوساطة المالية', 'invest': 'تفعيل التدفق المالي', 'vault': 'الخزنة الخاصة', 'logout': 'تسجيل خروج', 'amount': 'قيمة الاستثمار'},
-    'en': {'title': 'ATHEER 369 - Financial Brokerage', 'invest': 'Activate Cash Flow', 'vault': 'Private Vault', 'logout': 'Logout', 'amount': 'Investment Amount'},
-    'fr': {'title': 'ATHEER 369 - Courtage Financier', 'invest': 'Activer le flux', 'vault': 'Coffre-fort', 'logout': 'Déconnexion', 'amount': 'Montant'}
+# النظام اللغوي والبيانات الموحدة
+CONTENT = {
+    'ar': {'title': 'منصة ATHEER 369 المالية', 'vault': 'رصيد الخزنة:', 'invest': 'تفعيل التدفق', 'amount': 'أدخل المبلغ', 'lang_label': 'اللغة'},
+    'en': {'title': 'ATHEER 369 Financial Portal', 'vault': 'Vault Balance:', 'invest': 'Activate Flow', 'amount': 'Enter Amount', 'lang_label': 'Language'},
+    'fr': {'title': 'Portail Financier ATHEER 369', 'vault': 'Solde du coffre:', 'invest': 'Activer le flux', 'amount': 'Montant', 'lang_label': 'Langue'}
 }
 
 @app.before_request
-def load_lang(): g.lang = session.get('lang', 'ar')
+def setup_lang(): g.lang = session.get('lang', 'ar')
 
 @app.route("/", methods=["GET", "POST"])
-def home():
-    if request.method == "POST":
-        if request.form.get("username") == "Essam369" and request.form.get("password") == "369369":
-            session["logged_in"] = True
-            return redirect(url_for('dashboard'))
-    return render_template_string("<body style='background:#000; color:#0f0; text-align:center; padding-top:100px;'><h1>LOGIN</h1><form method='post'><input name='username' placeholder='USER'><br><input name='password' type='password' placeholder='PASS'><br><button>ENTER</button></form></body>")
-
-@app.route("/dashboard", methods=["GET", "POST"])
-def dashboard():
-    if not session.get("logged_in"): return redirect(url_for('home'))
-    # منطق الخزنة
+def index():
     if request.method == "POST":
         amount = float(request.form.get("amount", 0))
         session['vault'] = session.get('vault', 0) + (amount * 0.10)
-        return redirect(url_for('dashboard'))
     
-    return render_template_string(f"""
-    <body style='background:#000; color:#0f0; font-family:monospace; text-align:center;'>
-        <nav><a href='/lang/ar'>AR</a> | <a href='/lang/en'>EN</a> | <a href='/lang/fr'>FR</a></nav>
-        <h1>{{{{LANGUAGES[g.lang]['title']}}}}</h1>
-        <div style='border:1px solid #0f0; width:300px; margin:auto; padding:20px;'>
-            <p>{{{{LANGUAGES[g.lang]['vault']}}}}: ${session.get('vault', 0):.2f}</p>
-            <form method='post'><input name='amount' placeholder='{{{{LANGUAGES[g.lang]['amount']}}}}'><br>
-            <button>{{{{LANGUAGES[g.lang]['invest']}}}}</button></form>
+    return render_template_string("""
+    <body style="background:#000; color:#0f0; font-family:sans-serif; text-align:center;">
+        <nav><a href="/set/ar">AR</a> | <a href="/set/en">EN</a> | <a href="/set/fr">FR</a></nav>
+        <h1>{{CONTENT[g.lang]['title']}}</h1>
+        <div style="border:2px solid #0f0; width:350px; margin:20px auto; padding:20px;">
+            <h3>{{CONTENT[g.lang]['vault']}} ${{session.get('vault', 0):.2f}}</h3>
+            <form method="post">
+                <input name="amount" placeholder="{{CONTENT[g.lang]['amount']}}" style="background:#000; color:#fff; border:1px solid #0f0;">
+                <button type="submit" style="background:#0f0; border:none; padding:5px 15px;">{{CONTENT[g.lang]['invest']}}</button>
+            </form>
         </div>
-        <br><a href='/logout' style='color:red;'>{{{{LANGUAGES[g.lang]['logout']}}}}</a>
     </body>
-    """, LANGUAGES=LANGUAGES)
+    """, CONTENT=CONTENT)
 
-@app.route("/lang/<l>")
-def set_lang(l): session['lang'] = l; return redirect(url_for('dashboard'))
-
-@app.route("/logout")
-def logout(): session.clear(); return redirect(url_for('home'))
+@app.route("/set/<lang>")
+def set_lang(lang): session['lang'] = lang; return redirect(url_for('index'))
 
 if __name__ == "__main__": app.run()

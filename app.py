@@ -1,12 +1,10 @@
 from flask import Flask, render_template
-import os
 
-# نحدد المجلد الحالي كمسار رئيسي للبحث
-app = Flask(__name__, template_folder=os.getcwd())
+# هنا نخبر Flask أن يبحث عن الملفات في المجلد الحالي مباشرة
+app = Flask(__name__, template_folder='.')
 
 @app.route('/')
 def home():
-    # سيبحث الآن مباشرة في المجلد الرئيسي بدون الحاجة لمجلد templates
     return render_template('login.html')
 
 if __name__ == '__main__':

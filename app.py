@@ -1,10 +1,10 @@
 from flask import Flask, render_template
+import os
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='.') # أخبرنا Flask أن يبحث عن الملفات في المجلد الحالي
 
 @app.route('/')
 def home():
-    # يبحث Flask تلقائياً داخل مجلد 'templates' عن هذا الملف
     return render_template('login.html')
 
 if __name__ == '__main__':

@@ -22,7 +22,7 @@ def home():
     current_balance = c.fetchone()[0]
     conn.close()
     ticker = f"GOLD: ${2300.89 + random.random():.2f} | BTC: ${68016 + random.randint(1,100)}"
-    return render_template('Essam.html', balance=current_balance, ticker=ticker)
+    return render_template('essam.html', balance=current_balance, ticker=ticker)
 
 @app.route('/activate-flow', methods=['POST'])
 def activate_flow():

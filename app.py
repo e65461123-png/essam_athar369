@@ -1,33 +1,38 @@
 from flask import Flask, render_template, request, jsonify
 import sqlite3
-import random
 
 app = Flask(__name__)
 
-def init_db():
-    conn = sqlite3.connect('data.db')
-    c = conn.cursor()
-    c.execute('CREATE TABLE IF NOT EXISTS vault (id INTEGER PRIMARY KEY, balance REAL)')
-    c.execute('INSERT OR IGNORE INTO vault (id, balance) VALUES (1, 0.0)')
-    conn.commit()
-    conn.close()
-
-init_db()
+# وظيفة لحساب الرصيد بعد خصم عمولة 10%
+def calculate_balance_with_fee(amount):
+    fee = amount * 0.10
+    return amount - fee
 
 @app.route('/')
 def home():
+    # جلب الرصيد من قاعدة البيانات
     conn = sqlite3.connect('data.db')
     c = conn.cursor()
     c.execute('SELECT balance FROM vault WHERE id = 1')
-    current_balance = c.fetchone()[0]
+    result = c.fetchone()
+    current_balance = result[0] if result else 0
     conn.close()
-    ticker = f"GOLD: ${2300.89 + random.random():.2f} | BTC: ${68016 + random.randint(1,100)}"
-    return render_template('essam.html', balance=current_balance, ticker=ticker)
+    return render_template('essam.html', balance=current_balance, ticker="سوق ATHEER 369 نشط")
 
 @app.route('/activate-flow', methods=['POST'])
 def activate_flow():
-    # هنا يتم تنفيذ منطق التفعيل
-    return jsonify({"status": "success", "message": "تم تفعيل بوابة التدفق المالي بنجاح"})
+    # هنا نطبق منطق الـ 10%
+    # سنفترض أن المستخدم أودع مبلغاً (مثلاً 100)
+    deposit_amount = 100 
+    final_amount = calculate_balance_with_fee(deposit_amount)
+    
+    conn = sqlite3.connect('data.db')
+    c = conn.cursor()
+    c.execute('UPDATE vault SET balance = balance + ? WHERE id = 1', (final_amount,))
+    conn.commit()
+    conn.close()
+    
+    return jsonify({"status": "success", "message": f"تمت إضافة {final_amount} (بعد خصم عمولة 10%)"})
 
 if __name__ == '__main__':
     app.run(debug=True)

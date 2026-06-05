@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>Atheer 369</title>
+    <style>
+        body { background: #000; color: #0f0; font-family: monospace; text-align: center; padding: 50px; }
+        .box { border: 1px solid #0f0; padding: 20px; max-width: 400px; margin: auto; }
+        button { background: #ffd700; border: none; padding: 15px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h1>ATHEER 369</h1>
+        <h2>الرصيد: ${{ "%.2f"|format(balance) }}</h2>
+        <button id="financial-btn">تفعيل بوابة التدفق المالي</button>
+    </div>
+    <script>
+        document.getElementById('financial-btn').addEventListener('click', function() {
+            this.innerText = "جاري التفعيل...";
+            this.disabled = true;
+            fetch('/activate-flow', { method: 'POST' })
+                .then(res => res.json())
+                .then(data => { alert(data.message); this.innerText = "البوابة نشطة"; });
+        });
+    </script>
+</body>
+</html>

@@ -1,46 +1,18 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <style>
-        body { background: #0a0a0a; color: #00ff41; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 10px; }
-        .dashboard-container { max-width: 450px; margin: auto; border: 1px solid #1a1a1a; padding: 15px; border-radius: 12px; background: #050505; }
-        
-        /* شريط الحالة */
-        .status-header { display: flex; justify-content: space-between; font-size: 0.75em; border-bottom: 1px solid #1a1a1a; padding-bottom: 10px; margin-bottom: 15px; }
-        
-        /* الرادار */
-        .radar-box { width: 150px; height: 150px; border: 2px solid #00ff41; border-radius: 50%; margin: 0 auto 15px; position: relative; overflow: hidden; }
-        .radar-line { width: 50%; height: 2px; background: #00ff41; position: absolute; top: 50%; left: 50%; transform-origin: left; animation: rotate 3s linear infinite; }
-        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        
-        /* شبكة الأصول */
-        .asset-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .asset-card { border: 1px solid #222; padding: 10px; text-align: center; border-radius: 6px; }
-        
-        /* الخزنة */
-        .vault-section { margin-top: 20px; padding: 15px; border-top: 2px solid #00ff41; }
-    </style>
-</head>
-<body>
-    <div class="dashboard-container">
-        <div class="status-header"><span>SYSTEM: ONLINE</span><span id="time">01:00:00</span></div>
-        
-        <div class="radar-box"><div class="radar-line"></div></div>
-        
-        <div class="asset-grid">
-            <div class="asset-card">ذهب<br><b id="gold">2350.27$</b></div>
-            <div class="asset-card">بيتكوين<br><b id="btc">68009$</b></div>
-        </div>
+<div class="vault-section">
+    <h4 style="margin:0;">خزنة القيادة المؤمنة</h4>
+    <input type="password" id="vaultPass" placeholder="أدخل كود الخزنة" style="width:100%; background:#111; color:#00ff41; border:1px solid #333; padding:8px; margin:10px 0;">
+    <button onclick="openVault()" style="width:100%; background:#00ff41; border:none; padding:10px; font-weight:bold; cursor:pointer;">فتح الوصول</button>
+    <div id="vaultResult" style="margin-top:10px; font-weight:bold; color: #fff;"></div>
+</div>
 
-        <div class="vault-section">
-            <h4 style="margin:0;">خزنة القيادة المؤمنة</h4>
-            <input type="password" style="width:100%; background:#111; color:#00ff41; border:1px solid #333; padding:8px; margin:10px 0;">
-            <button style="width:100%; background:#00ff41; border:none; padding:10px; font-weight:bold;">فتح الوصول</button>
-        </div>
-    </div>
-    <script>
-        setInterval(() => { document.getElementById('time').innerText = new Date().toLocaleTimeString(); }, 1000);
-    </script>
-</body>
-</html>
+<script>
+    function openVault() {
+        var pass = document.getElementById('vaultPass').value;
+        if(pass === "369369") {
+            document.getElementById('vaultResult').innerText = "تم الوصول بنجاح: الرصيد الحالي 999,999$";
+            document.getElementById('vaultResult').style.color = "#00ff41";
+        } else {
+            alert("كلمة سر الخزنة غير صحيحة!");
+        }
+    }
+</script>

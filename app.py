@@ -27,6 +27,7 @@ def activate_flow():
     conn = sqlite3.connect('data.db')
     c = conn.cursor()
     c.execute('UPDATE vault SET balance = balance + ? WHERE id = 1', (final_amount,))
+
     conn.commit()
     conn.close()
     return jsonify({"status": "success", "message": "تم الإيداع بنجاح"})

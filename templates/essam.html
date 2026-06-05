@@ -2,56 +2,37 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>ATHEER 369 - منصة القيادة</title>
-    <!-- استدعاء مكتبة الرسم البياني العالمية -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body { background: #000; color: #00ff41; font-family: 'Courier New', monospace; margin: 0; padding: 10px; }
-        .container { border: 1px solid #00ff41; padding: 15px; border-radius: 8px; max-width: 600px; margin: auto; }
-        .data-card { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0; }
-        .card { border: 1px solid #333; padding: 10px; text-align: center; }
-        canvas { background: #111; margin-top: 10px; }
-        .ticker-bar { background: #00ff41; color: #000; padding: 5px; overflow: hidden; white-space: nowrap; font-weight: bold; }
+        body { background: #000; color: #00ff41; font-family: monospace; }
+        .box { border: 1px solid #00ff41; padding: 20px; max-width: 400px; margin: 100px auto; text-align: center; }
+        input { width: 90%; padding: 10px; margin: 5px; background: #222; border: 1px solid #00ff41; color: #fff; }
+        button { width: 95%; padding: 10px; background: #00ff41; border: none; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
-
-<div class="container">
-    <div class="ticker-bar" id="live-ticker">جاري الاتصال بسيرفرات البورصة العالمية...</div>
-    
-    <h2>غرفة التحكم - عصام الكومي</h2>
-    
-    <div class="data-card">
-        <div class="card">الذهب: <span id="gold">2350$</span></div>
-        <div class="card">بيتكوين: <span id="btc">68000$</span></div>
+    <!-- نظام الحماية الخاص بك -->
+    <div id="auth" class="box">
+        <h3>بوابة ATHEER 369 | دخول القيادة</h3>
+        <input type="text" id="u" placeholder="Essam">
+        <input type="password" id="p" placeholder="369369">
+        <button onclick="check()">دخول</button>
     </div>
 
-    <canvas id="marketChart" width="400" height="200"></canvas>
-
-    <div style="margin-top:20px;">
-        <h3>خزنة القيادة المؤمنة (AES-256)</h3>
-        <input type="password" placeholder="أدخل كود الخزنة" style="width:100%; padding:10px;">
-        <button style="width:100%; padding:10px; background:#00ff41; border:none; margin-top:5px;">فتح الخزنة الرقمية</button>
+    <!-- لوحة التحكم الحقيقية -->
+    <div id="main" class="box" style="display:none;">
+        <h3>غرفة القيادة</h3>
+        <p>الرصيد: {{ balance }}$</p>
+        <p>الخزنة: <span id="vault">********</span></p>
+        <button onclick="document.getElementById('vault').innerText='999,999$'">فتح الخزنة</button>
     </div>
-</div>
 
-<script>
-    // تحديث البيانات الحية
-    setInterval(() => {
-        document.getElementById('gold').innerText = (2350 + Math.random()).toFixed(2) + "$";
-        document.getElementById('btc').innerText = (68000 + Math.random()*100).toFixed(0) + "$";
-        document.getElementById('live-ticker').innerText = "توقيت القاهرة: " + new Date().toLocaleTimeString() + " | المؤشرات في حالة تذبذب إيجابي...";
-    }, 2000);
-
-    // الرسم البياني
-    const ctx = document.getElementById('marketChart').getContext('2d');
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: ['1', '2', '3', '4', '5'],
-            datasets: [{ label: 'مؤشر السوق', data: [10, 20, 15, 30, 25], borderColor: '#00ff41' }]
+    <script>
+        function check() {
+            if(document.getElementById('u').value == 'Essam' && document.getElementById('p').value == '369369') {
+                document.getElementById('auth').style.display = 'none';
+                document.getElementById('main').style.display = 'block';
+            } else { alert('خطأ في البيانات'); }
         }
-    });
-</script>
+    </script>
 </body>
 </html>

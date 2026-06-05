@@ -3,21 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <style>
-        body { background: #0a0a0a; color: #00ff41; font-family: 'Courier New', monospace; margin: 0; padding: 20px; text-align: center; }
-        .container { border: 2px solid #00ff41; padding: 30px; border-radius: 15px; box-shadow: 0 0 20px rgba(0,255,65,0.2); max-width: 500px; margin: auto; }
-        h1 { margin-bottom: 20px; letter-spacing: 2px; }
-        .balance { font-size: 3em; margin: 20px 0; font-weight: bold; }
-        button { background: #00ff41; border: none; padding: 15px 30px; color: #000; font-weight: bold; cursor: pointer; border-radius: 5px; font-size: 1.2em; width: 100%; }
-        button:hover { background: #008f11; }
+        body { background: #050505; color: #fff; font-family: sans-serif; margin: 0; }
+        .nav { background: #111; padding: 20px; text-align: center; border-bottom: 2px solid #00ff41; }
+        .dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; padding: 20px; }
+        .card { background: #1a1a1a; padding: 20px; border-radius: 10px; border: 1px solid #333; }
+        .price { color: #00ff41; font-size: 1.5em; font-weight: bold; }
+        button { background: #00ff41; border: none; padding: 15px; width: 100%; border-radius: 5px; font-weight: bold; cursor: pointer; margin-top: 20px; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>ATHEER 369</h1>
-        <div class="balance">{{ balance }}$</div>
-        <button onclick="fetch('/activate-flow', {method: 'POST'}).then(() => location.reload())">
-            تفعيل التدفق المالي
-        </button>
+    <div class="nav"><h2>ATHEER 369 | لوحة التحكم</h2></div>
+    <div class="dashboard">
+        <div class="card"><h3>الرصيد الحالي</h3><div class="price">{{ balance }}$</div></div>
+        <div class="card"><h3>سعر الذهب (عالمي)</h3><div class="price" id="gold">2350.00$</div></div>
     </div>
+    <div style="padding: 20px;">
+        <button onclick="fetch('/activate-flow', {method: 'POST'}).then(() => location.reload())">إيداع جديد</button>
+    </div>
+    <script>
+        setInterval(() => {
+            document.getElementById('gold').innerText = (2350 + Math.random()).toFixed(2) + "$";
+        }, 2000);
+    </script>
 </body>
 </html>

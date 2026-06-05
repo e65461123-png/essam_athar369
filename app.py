@@ -1,28 +1,38 @@
-from flask import Flask, render_template, request, jsonify
-import sqlite3
+from flask import Flask, request, jsonify
+from flask_sqlalchemy import SQLAlchemy
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
-@app.route('/')
-def home():
-    conn = sqlite3.connect('data.db')
-    c = conn.cursor()
-    c.execute('CREATE TABLE IF NOT EXISTS vault (id INTEGER PRIMARY KEY, balance REAL)')
-    c.execute('INSERT OR IGNORE INTO vault (id, balance) VALUES (1, 0.0)')
-    conn.commit()
-    c.execute('SELECT balance FROM vault WHERE id = 1')
-    result = c.fetchone()
-    current_balance = result[0] if result else 0
-    conn.close()
-    return render_template('essam.html', balance=current_balance, ticker="سوق ATHEER 369 نشط")
-@app.route('/activate-flow', methods=['POST'])
-def activate_flow():
-    final_amount = 100 * 0.90
-    conn = sqlite3.connect('data.db')
-    c = conn.cursor()
-    c.execute('UPDATE vault SET balance = balance + ? WHERE id = 1', (final_amount,))
-    conn.commit()
-    conn.close()
-    return jsonify({"status": "success", "message": "تم الإيداع بنجاح"})
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///atheersystem.db'
+db = SQLAlchemy(app)
+
+# نموذج المستخدم في قاعدة البيانات
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(50), unique=True, nullable=False)
+    password = db.Column(db.String(100), nullable=False)
+    balance = db.Column(db.Float, default=0.0)
+
+# إنشاء الحسابات
+@app.route('/register', methods=['POST'])
+def register():
+    data = request.get_json()
+    hashed_password = generate_password_hash(data['password'], method='sha256')
+    new_user = User(username=data['username'], password=hashed_password)
+    db.session.add(new_user)
+    db.session.commit()
+    return jsonify({"message": "تم إنشاء الحساب بنجاح!"})
+
+# تسجيل الدخول
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.get_json()
+    user = User.query.filter_by(username=data['username']).first()
+    if user and check_password_hash(user.password, data['password']):
+        return jsonify({"message": "تم الدخول بنجاح!"})
+    return jsonify({"message": "خطأ في بيانات الدخول"}), 401
 
 if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()
     app.run(debug=True)

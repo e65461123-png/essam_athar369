@@ -3,18 +3,13 @@ import sqlite3
 
 app = Flask(__name__)
 
-def calculate_balance_with_fee(amount):
-    return amount * 0.90  # خصم 10% مباشرة
-
 @app.route('/')
 def home():
     conn = sqlite3.connect('data.db')
     c = conn.cursor()
-    # التأكد من وجود سجل للرصيد
     c.execute('CREATE TABLE IF NOT EXISTS vault (id INTEGER PRIMARY KEY, balance REAL)')
     c.execute('INSERT OR IGNORE INTO vault (id, balance) VALUES (1, 0.0)')
     conn.commit()
-    
     c.execute('SELECT balance FROM vault WHERE id = 1')
     result = c.fetchone()
     current_balance = result[0] if result else 0
@@ -23,14 +18,14 @@ def home():
 
 @app.route('/activate-flow', methods=['POST'])
 def activate_flow():
-    final_amount = calculate_balance_with_fee(100)
+    # حساب المبلغ بعد خصم 10%
+    final_amount = 100 * 0.90
     conn = sqlite3.connect('data.db')
     c = conn.cursor()
     c.execute('UPDATE vault SET balance = balance + ? WHERE id = 1', (final_amount,))
-
     conn.commit()
     conn.close()
-    return jsonify({"status": "success", "message": "تم الإيداع بنجاح"})
+    return jsonify({"status": "success", "message": "تم الإيداع"})
 
 if __name__ == '__main__':
     app.run(debug=True)

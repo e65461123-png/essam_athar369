@@ -1,13 +1,21 @@
+from flask import Flask, session
+
+app = Flask(__name__)
+app.secret_key = "atheer-secret"
+
+@app.route("/")
+def home():
+    return "ATHEER 369 SYSTEM WORKING 🟢"
+
 @app.route("/admin")
 def admin():
     if session.get("user") != "admin":
         return "Access Denied ❌"
 
-    users_count = 1  # تقدر تربطها بقاعدة البيانات لاحقًا
-
-    return f"""
+    return """
     <h1>ADMIN CONTROL ROOM</h1>
     <p>System Status: RUNNING 🟢</p>
-    <p>Total Users: {users_count}</p>
-    <p>Current Admin: {session.get('user')}</p>
     """
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)

@@ -1,1 +1,58 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #0b0f19;
+    color: white;
+    text-align: center;
+}
 
+/* كارت الداشبورد */
+.card {
+    margin-top: 80px;
+    background: #1f2937;
+    padding: 30px;
+    display: inline-block;
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.4);
+    min-width: 300px;
+}
+
+/* العناوين */
+h1, h2 {
+    color: #00ff99;
+}
+
+/* المدخلات */
+input {
+    width: 80%;
+    padding: 10px;
+    margin: 8px 0;
+    border: none;
+    border-radius: 8px;
+    outline: none;
+}
+
+/* الأزرار */
+button {
+    padding: 10px 20px;
+    background: #00ff99;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+button:hover {
+    background: #00cc77;
+}
+
+/* الروابط */
+a {
+    color: #00ff99;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}

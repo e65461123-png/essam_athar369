@@ -3,17 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <title>AETHER 369</title>
+
+    <style>
+        body{
+            background:#0b0b0b;
+            color:white;
+            text-align:center;
+            font-family:Arial;
+        }
+
+        .box{
+            margin-top:60px;
+        }
+
+        h1{
+            color:#00ff99;
+        }
+
+        input{
+            padding:10px;
+            margin:5px;
+            border-radius:8px;
+            border:none;
+        }
+
+        button{
+            padding:10px 15px;
+            border:none;
+            border-radius:8px;
+            cursor:pointer;
+        }
+
+        .logout{
+            color:red;
+            display:block;
+            margin-top:20px;
+            text-decoration:none;
+        }
+    </style>
 </head>
 
-<body style="background:#0b0b0b;color:white;text-align:center;font-family:Arial">
+<body>
+
+<div class="box">
 
     <h1>🔥 AETHER 369</h1>
     <h3>👑 القائد: عصام الكومي</h3>
 
-    <div style="margin-top:30px;">
-        <h2>💰 رصيد المحفظة</h2>
-        <h1 style="color:#00ff99;">USD {{ balance }}.00</h1>
-    </div>
+    <hr style="width:50%">
+
+    <h2>💰 رصيد المحفظة</h2>
+
+    <!-- 🔥 ده هو المهم -->
+    <h1>USD {{ balance }}.00</h1>
 
     <form action="/topup" method="post">
         <input name="amount" placeholder="إضافة رصيد">
@@ -25,8 +67,9 @@
         <button>Pay</button>
     </form>
 
-    <br>
-    <a href="/logout" style="color:red;">Logout</a>
+    <a class="logout" href="/logout">Logout</a>
+
+</div>
 
 </body>
 </html>

@@ -1,21 +1,24 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>AETHER PLATFORM</title>
+    <title>AETHER 369</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 
 <body>
 
 <div class="card">
+
     <h1>🚀 AETHER 369</h1>
 
-    <p>👤 القائد: {{ data.name }}</p>
+    <p>👤 المستخدم: {{ data.name }}</p>
+
     <p>💰 الرصيد: USD {{ data.balance }}</p>
 
-    <p>🟢 System Active</p>
+    <p>🟢 الحالة: Active System</p>
 
     <a href="/logout">Logout</a>
+
 </div>
 
 </body>

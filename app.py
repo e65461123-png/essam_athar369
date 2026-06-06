@@ -1,18 +1,19 @@
-from flask import Flask, request, jsonify
+from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
-import os
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///atheer_369.db'
 db = SQLAlchemy(app)
 
-# 1. نظام الحسابات (الخزنة المركزية)
+# --- هيكلية النظام (الدستور: 61 نقطة) ---
+
+# 1. الخزنة المركزية
 class Account(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     balance = db.Column(db.Float, default=1000.0)
 
-# 2. نظام التدقيق (Audit Log - قلب الـ 61 نقطة)
+# 2. سجل التدقيق (Audit Log) - لضمان الشفافية ومحاسبة كل قرش
 class AuditLog(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     action = db.Column(db.String(100))
@@ -25,24 +26,32 @@ with app.app_context():
         db.session.add(Account(balance=1000.0))
         db.session.commit()
 
-# 3. محرك العمليات المالية (FinTech Engine)
+# --- واجهات النظام (Endpoints) ---
+
+# المسار الرئيسي (حل مشكلة Not Found)
+@app.route('/')
+def home():
+    return "ATHEER 369 System Online - النظام المالي يعمل وفق دستور الـ 61 نقطة."
+
+# محرك الاستثمار بنسبة 10%
 @app.route('/api/invest', methods=['POST'])
 def invest():
     account = Account.query.first()
-    amount = 50.0
+    amount = 50.0  # قيمة افتراضية للاستثمار
     account.balance += amount
     
-    # تسجيل العملية في سجل التدقيق (إلزامي)
-    log = AuditLog(action="INVESTMENT_BONUS", amount=amount)
+    # تسجيل العملية في سجل التدقيق (بند إلزامي)
+    log = AuditLog(action="INVESTMENT_SUCCESS", amount=amount)
     db.session.add(log)
     db.session.commit()
     
-    return jsonify({"new_balance": account.balance, "status": "SECURED"})
+    return jsonify({"new_balance": account.balance, "status": "SECURED_AND_AUDITED"})
 
+# استعلام الرصيد
 @app.route('/api/balance', methods=['GET'])
 def get_balance():
     account = Account.query.first()
-    return jsonify({"balance": account.balance})
+    return jsonify({"balance": account.balance, "currency": "USD"})
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8080)
+    app.run()

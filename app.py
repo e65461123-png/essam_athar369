@@ -1,16 +1,17 @@
-from flask import Flask, request, session, redirect
+from flask import Flask, render_template, request, session, redirect
 import sqlite3
 import hashlib
 
 app = Flask(__name__)
-app.secret_key = "atheer-369-secret"
+app.secret_key = "atheer-369-secret-key"
 
 DB = "atheer.db"
 
-# ================== قاعدة البيانات ==================
+# ================= DATABASE =================
 def init_db():
     conn = sqlite3.connect(DB)
     c = conn.cursor()
+
     c.execute("""
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -18,6 +19,13 @@ def init_db():
             password TEXT
         )
     """)
+
+    # create admin if not exists
+    c.execute("SELECT * FROM users WHERE username=?", ("admin",))
+    if not c.fetchone():
+        c.execute("INSERT INTO users (username, password) VALUES (?, ?)",
+                  ("admin", hash_pass("1234")))
+
     conn.commit()
     conn.close()
 
@@ -44,10 +52,9 @@ def check_user(username, password):
     conn.close()
     return user
 
-# تشغيل قاعدة البيانات
 init_db()
 
-# ================== الصفحة الرئيسية ==================
+# ================= HOME =================
 @app.route("/")
 def home():
     return """
@@ -58,7 +65,7 @@ def home():
     <a href='/admin'>Admin</a>
     """
 
-# ================== تسجيل ==================
+# ================= REGISTER =================
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
@@ -77,7 +84,7 @@ def register():
     </form>
     """
 
-# ================== دخول ==================
+# ================= LOGIN =================
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -101,7 +108,7 @@ def login():
     </form>
     """
 
-# ================== داشبورد ==================
+# ================= DASHBOARD =================
 @app.route("/dashboard")
 def dashboard():
     if "user" not in session:
@@ -113,7 +120,7 @@ def dashboard():
     <a href='/logout'>Logout</a>
     """
 
-# ================== Admin بسيط ==================
+# ================= ADMIN =================
 @app.route("/admin")
 def admin():
     if session.get("user") != "admin":
@@ -124,18 +131,12 @@ def admin():
     <p>System Status: RUNNING 🟢</p>
     """
 
-# ================== خروج ==================
+# ================= LOGOUT =================
 @app.route("/logout")
 def logout():
     session.clear()
     return redirect("/")
 
-# ================== تشغيل ==================
+# ================= RUN =================
 if __name__ == "__main__":
-    
-@app.route("/admin")
-def admin():
-    if session.get("user") != "admin":
-        return "Access Denied ❌"
-
-    return render_template("admin.html", user=session["user"])
+    app.run(debug=True)

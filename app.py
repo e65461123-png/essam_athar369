@@ -1,68 +1,27 @@
-@app.route('/')
-def index():
-    return """
-    <!DOCTYPE html>
-    <html lang="ar" dir="rtl">
-    <head>
-        <meta charset="UTF-8">
-        <title>AETHER 369</title>
-        <style>
-            body{
-                background:#0b0b0b;
-                color:white;
-                text-align:center;
-                font-family:Arial;
-                margin-top:50px;
-            }
+from flask import Flask, render_template_string
 
-            .card{
-                width:80%;
-                margin:auto;
-                padding:20px;
-                border:1px solid #00ff99;
-                border-radius:15px;
-            }
+app = Flask(__name__)
 
-            h1{
-                color:#00ff99;
-            }
+HTML = """
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ATHEER 369</title>
+</head>
+<body style="font-family: Arial; text-align:center; margin-top:50px;">
+    <h1>🚀 مرحباً بك في المحفظة الرقمية</h1>
+    <p>السيرفر يعمل بنجاح</p>
+</body>
+</html>
+"""
 
-            a{
-                display:inline-block;
-                margin:10px;
-                padding:12px 20px;
-                background:#00ff99;
-                color:black;
-                text-decoration:none;
-                border-radius:8px;
-                font-weight:bold;
-            }
+@app.route("/")
+def home():
+    return render_template_string(HTML)
 
-            a:hover{
-                opacity:.8;
-            }
-        </style>
-    </head>
-    <body>
+@app.route("/health")
+def health():
+    return {"status": "ok", "message": "running"}
 
-        <div class="card">
-
-            <h1>🔥 AETHER 369</h1>
-
-            <h2>👑 القائد: عصام الكومي</h2>
-
-            <hr>
-
-            <h3>مرحباً بك في المحفظة الرقمية</h3>
-
-            <p>نظام إدارة المحافظ والأرصدة الرقمية</p>
-
-            <a href="/initdb">تهيئة قاعدة البيانات</a>
-
-            <a href="/balance/essam">عرض رصيد Essam</a>
-
-        </div>
-
-    </body>
-    </html>
-    """
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)

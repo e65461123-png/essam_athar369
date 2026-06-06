@@ -1,75 +1,17 @@
-<!DOCTYPE html>
-<html lang="ar">
-<head>
-    <meta charset="UTF-8">
-    <title>AETHER 369</title>
+from flask import Flask, render_template
 
-    <style>
-        body{
-            background:#0b0b0b;
-            color:white;
-            text-align:center;
-            font-family:Arial;
-        }
+app = Flask(__name__)
 
-        .box{
-            margin-top:60px;
-        }
+# الصفحة الرئيسية - هتعرض لوحة التحكم فوراً بدون تعقيد
+@app.route('/')
+@app.route('/admin/dashboard')
+def admin_dashboard():
+    # البيانات اللي هتروح للـ HTML بشكل مباشر وآمن
+    admin_data = {
+        'username': 'admin',
+        'balance': '369.0'
+    }
+    return render_template('dashboard.html', data=admin_data)
 
-        h1{
-            color:#00ff99;
-        }
-
-        input{
-            padding:10px;
-            margin:5px;
-            border-radius:8px;
-            border:none;
-        }
-
-        button{
-            padding:10px 15px;
-            border:none;
-            border-radius:8px;
-            cursor:pointer;
-        }
-
-        .logout{
-            color:red;
-            display:block;
-            margin-top:20px;
-            text-decoration:none;
-        }
-    </style>
-</head>
-
-<body>
-
-<div class="box">
-
-    <h1>🔥 AETHER 369</h1>
-    <h3>👑 القائد: عصام الكومي</h3>
-
-    <hr style="width:50%">
-
-    <h2>💰 رصيد المحفظة</h2>
-
-    <!-- 🔥 ده هو المهم -->
-    <h1>USD {{ balance }}.00</h1>
-
-    <form action="/topup" method="post">
-        <input name="amount" placeholder="إضافة رصيد">
-        <button>Charge</button>
-    </form>
-
-    <form action="/use" method="post">
-        <input name="amount" placeholder="سحب رصيد">
-        <button>Pay</button>
-    </form>
-
-    <a class="logout" href="/logout">Logout</a>
-
-</div>
-
-</body>
-</html>
+if __name__ == '__main__':
+    app.run(debug=True)

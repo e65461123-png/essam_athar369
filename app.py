@@ -4,23 +4,24 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'trade-secret'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///trade.db'
+app.config['SECRET_KEY'] = 'final-secret-key'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///platform.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
 # =========================
-# 👤 USER
+# 👤 USER MODEL
 # =========================
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True)
     password = db.Column(db.String(255))
     balance = db.Column(db.Float, default=1000.0)
+    role = db.Column(db.String(20), default="user")
 
 # =========================
-# 📊 ORDER BOOK
+# 📊 ORDERS (BUY/SELL)
 # =========================
 class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -32,15 +33,31 @@ class Order(db.Model):
     created = db.Column(db.DateTime, default=datetime.utcnow)
 
 # =========================
-# 🏠 HOME
+# 🏠 HOME UI (MERGED)
 # =========================
 @app.route('/')
 def home():
     return """
-    <h2>📈 Trading Platform</h2>
-    <a href='/buy'>Buy</a> |
-    <a href='/sell'>Sell</a> |
-    <a href='/orders'>Orders</a>
+    <html>
+    <head>
+        <title>Trading Platform</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    </head>
+
+    <body class="bg-dark text-white text-center">
+
+        <h1 class="mt-5">📈 Trading Platform</h1>
+
+        <p>💰 Secure Exchange Core System</p>
+
+        <div class="mt-4">
+            <a class="btn btn-success m-2" href="/buy">Buy</a>
+            <a class="btn btn-danger m-2" href="/sell">Sell</a>
+            <a class="btn btn-primary m-2" href="/orders">Orders</a>
+        </div>
+
+    </body>
+    </html>
     """
 
 # =========================
@@ -49,11 +66,12 @@ def home():
 @app.route('/buy', methods=['GET','POST'])
 def buy():
     if request.method == 'POST':
-        user = session['user']
-        amount = float(request.form['amount'])
-        price = float(request.form['price'])
-
-        order = Order(user=user, type="buy", amount=amount, price=price)
+        order = Order(
+            user=session.get('user','guest'),
+            type="buy",
+            amount=float(request.form['amount']),
+            price=float(request.form['price'])
+        )
         db.session.add(order)
         db.session.commit()
 
@@ -61,10 +79,11 @@ def buy():
         return redirect('/orders')
 
     return """
+    <h2>Buy Order</h2>
     <form method='post'>
-        <input name='amount' placeholder='Amount'>
-        <input name='price' placeholder='Price'>
-        <button>Buy</button>
+        <input name='amount' placeholder='Amount'><br>
+        <input name='price' placeholder='Price'><br>
+        <button>Submit Buy</button>
     </form>
     """
 
@@ -74,11 +93,12 @@ def buy():
 @app.route('/sell', methods=['GET','POST'])
 def sell():
     if request.method == 'POST':
-        user = session['user']
-        amount = float(request.form['amount'])
-        price = float(request.form['price'])
-
-        order = Order(user=user, type="sell", amount=amount, price=price)
+        order = Order(
+            user=session.get('user','guest'),
+            type="sell",
+            amount=float(request.form['amount']),
+            price=float(request.form['price'])
+        )
         db.session.add(order)
         db.session.commit()
 
@@ -86,15 +106,16 @@ def sell():
         return redirect('/orders')
 
     return """
+    <h2>Sell Order</h2>
     <form method='post'>
-        <input name='amount' placeholder='Amount'>
-        <input name='price' placeholder='Price'>
-        <button>Sell</button>
+        <input name='amount'><br>
+        <input name='price'><br>
+        <button>Submit Sell</button>
     </form>
     """
 
 # =========================
-# ⚡ MATCHING ENGINE (CORE)
+# ⚡ MATCHING ENGINE
 # =========================
 def match_orders():
     buys = Order.query.filter_by(type="buy", status="open").all()
@@ -104,14 +125,14 @@ def match_orders():
         for s in sells:
             if b.price >= s.price and b.status == "open" and s.status == "open":
 
-                trade_amount = min(b.amount, s.amount)
+                trade = min(b.amount, s.amount)
 
-                b.amount -= trade_amount
-                s.amount -= trade_amount
+                b.amount -= trade
+                s.amount -= trade
 
-                if b.amount == 0:
+                if b.amount <= 0:
                     b.status = "closed"
-                if s.amount == 0:
+                if s.amount <= 0:
                     s.status = "closed"
 
                 db.session.commit()
@@ -123,26 +144,30 @@ def match_orders():
 def orders():
     data = Order.query.all()
 
-    out = ""
+    html = "<h2>📊 Orders</h2>"
     for o in data:
-        out += f"<p>{o.user} | {o.type} | {o.amount} | {o.price} | {o.status}</p>"
+        html += f"<p>{o.user} | {o.type} | {o.amount} | {o.price} | {o.status}</p>"
 
-    return out
+    html += "<br><a href='/'>Back</a>"
+    return html
 
 # =========================
-# 🔐 INIT
+# 🔐 INIT DB + ADMIN
 # =========================
-with app.app_context():
-    db.create_all()
-
+def create_admin():
     if not User.query.filter_by(username="admin").first():
         admin = User(
             username="admin",
             password=generate_password_hash("admin123"),
-            balance=999999
+            balance=999999,
+            role="admin"
         )
         db.session.add(admin)
         db.session.commit()
+
+with app.app_context():
+    db.create_all()
+    create_admin()
 
 # =========================
 # ▶ RUN

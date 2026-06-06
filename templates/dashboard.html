@@ -1,68 +1,32 @@
 <!DOCTYPE html>
-<html>
+<html lang="ar">
 <head>
+    <meta charset="UTF-8">
     <title>AETHER 369</title>
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial;
-            background: linear-gradient(135deg, #0f172a, #1e293b);
-            color: white;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-
-        .card {
-            background: #111827;
-            padding: 30px;
-            border-radius: 20px;
-            width: 350px;
-            text-align: center;
-            box-shadow: 0 0 20px rgba(0,0,0,0.4);
-        }
-
-        .title {
-            font-size: 22px;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-
-        .balance {
-            color: #22c55e;
-            font-size: 18px;
-            margin: 15px 0;
-        }
-
-        a {
-            display: inline-block;
-            margin-top: 15px;
-            padding: 10px 20px;
-            background: #ef4444;
-            color: white;
-            text-decoration: none;
-            border-radius: 10px;
-        }
-
-        a:hover {
-            background: #dc2626;
-        }
-    </style>
 </head>
-<body>
 
-    <div class="card">
-        <div class="title">AETHER 369</div>
+<body style="background:#0b0b0b;color:white;text-align:center;font-family:Arial">
 
-        <h3>Welcome {{ user }}</h3>
+    <h1>🔥 AETHER 369</h1>
+    <h3>👑 القائد: عصام الكومي</h3>
 
-        <div class="balance">
-            Balance: USD {{ balance }}
-        </div>
-
-        <a href="/logout">Logout</a>
+    <div style="margin-top:30px;">
+        <h2>💰 رصيد المحفظة</h2>
+        <h1 style="color:#00ff99;">USD {{ balance }}.00</h1>
     </div>
+
+    <form action="/topup" method="post">
+        <input name="amount" placeholder="إضافة رصيد">
+        <button>Charge</button>
+    </form>
+
+    <form action="/use" method="post">
+        <input name="amount" placeholder="سحب رصيد">
+        <button>Pay</button>
+    </form>
+
+    <br>
+    <a href="/logout" style="color:red;">Logout</a>
 
 </body>
 </html>

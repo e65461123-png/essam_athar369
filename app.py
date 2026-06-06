@@ -1,28 +1,59 @@
 from flask import Flask, render_template, request, session, redirect
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
-app.secret_key = "atheer-key"
+app.secret_key = "atheer-global-key"
 
+# ================= FAKE DB (مرحلة أولى) =================
+users = {
+    "admin": {
+        "password": generate_password_hash("1234"),
+        "role": "admin"
+    }
+}
+
+# ================= HOME =================
 @app.route("/")
 def home():
     return redirect("/login")
 
-@app.route("/login", methods=["GET","POST"])
-def login():
-    if request.method == "POST":
-        session["user"] = request.form["username"]
-        return redirect("/dashboard")
-
-    return render_template("login.html")
-
-@app.route("/register", methods=["GET","POST"])
+# ================= REGISTER =================
+@app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
-        session["user"] = request.form["username"]
-        return redirect("/dashboard")
+        username = request.form["username"]
+
+        if username in users:
+            return "User already exists ❌"
+
+        users[username] = {
+            "password": generate_password_hash(request.form["password"]),
+            "role": "user"
+        }
+
+        return redirect("/login")
 
     return render_template("register.html")
 
+# ================= LOGIN =================
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
+
+        user = users.get(username)
+
+        if user and check_password_hash(user["password"], password):
+            session["user"] = username
+            session["role"] = user["role"]
+            return redirect("/dashboard")
+
+        return "Login Failed ❌"
+
+    return render_template("login.html")
+
+# ================= DASHBOARD =================
 @app.route("/dashboard")
 def dashboard():
     if "user" not in session:
@@ -30,10 +61,20 @@ def dashboard():
 
     return render_template("dashboard.html", user=session["user"])
 
+# ================= ADMIN =================
+@app.route("/admin")
+def admin():
+    if session.get("role") != "admin":
+        return "Access Denied ❌"
+
+    return render_template("admin.html", user=session["user"])
+
+# ================= LOGOUT =================
 @app.route("/logout")
 def logout():
     session.clear()
     return redirect("/login")
 
+# ================= RUN =================
 if __name__ == "__main__":
     app.run(debug=True)

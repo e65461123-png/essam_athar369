@@ -132,6 +132,10 @@ def logout():
 
 # ================== تشغيل ==================
 if __name__ == "__main__":
-    app.run(debug=True)
+    
+@app.route("/admin")
+def admin():
+    if session.get("user") != "admin":
+        return "Access Denied ❌"
 
-add_user("admin", "1234")
+    return render_template("admin.html", user=session["user"])

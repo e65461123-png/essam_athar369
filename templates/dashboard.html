@@ -1,11 +1,22 @@
-@app.route("/dashboard")
-def dashboard():
-    if "user" not in session:
-        return redirect("/login")
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AETHER PLATFORM</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
 
-    user_data = {
-        "name": session["user"],
-        "balance": 369.00
-    }
+<body>
 
-    return render_template("dashboard.html", data=user_data)
+<div class="card">
+    <h1>🚀 AETHER 369</h1>
+
+    <p>👤 القائد: {{ data.name }}</p>
+    <p>💰 الرصيد: USD {{ data.balance }}</p>
+
+    <p>🟢 System Active</p>
+
+    <a href="/logout">Logout</a>
+</div>
+
+</body>
+</html>

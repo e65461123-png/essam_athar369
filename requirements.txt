@@ -1,6 +1,4 @@
-flask
-gunicorn
 Flask
 Flask-SQLAlchemy
+Flask-Bcrypt
 gunicorn
-psycopg2-binary

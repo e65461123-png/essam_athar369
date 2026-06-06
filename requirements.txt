@@ -1,6 +1,2 @@
-Flask
-Flask-SQLAlchemy
+flask
 gunicorn
-Werkzeug
-requests
-psycopg2-binary

@@ -3,14 +3,14 @@ import requests
 
 app = Flask(__name__)
 
-# دالة ذكية ومختصرة لجلب السعر الحي
+# دالة جلب سعر البيتكوين الحي مباشرة من بينانس
 def get_btc():
     try:
         return f"{float(requests.get('https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT', timeout=3).json()['price']):,.2f}"
     except:
         return "68,230.00"
 
-# 1. لوحة تحكم المستخدم العادي (العميل)
+# 1. لوحة تحكم المستخدم العادي (العميل) - المسار الرئيسي للموقع
 @app.route('/')
 @app.route('/dashboard')
 def user_dashboard():
@@ -20,7 +20,8 @@ def user_dashboard():
         'btc_price': get_btc(),  # السعر الحي هيسمع هنا فوراً
         'gold_price': '2,340.00'
     }
-    return render_template('user_dashboard.html', data=user_data)
+    # متظبطة هنا عشان تقرأ ملفكdashboard.html بالظبط وبدون أخطاء
+    return render_template('dashboard.html', data=user_data)
 
 # 2. لوحة تحكم الأدمن (المسؤول)
 @app.route('/admin/dashboard')

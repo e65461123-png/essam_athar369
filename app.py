@@ -6,11 +6,11 @@ app = Flask(__name__)
 @app.route('/')
 @app.route('/dashboard')
 def user_dashboard():
-    # هنا البيانات الشاملة اللي واجهة المستخدم مستنياها عشان الأرقام تظهر
+    # تمرير البيانات الآمنة والثابتة لملء الفراغات في واجهة المستخدم
     user_data = {
         'username': 'عصام الكومي',
         'wallet_balance': '1,250.00',
-        'btc_price': '68,230.00',  
+        'btc_price': '68,230.00',
         'gold_price': '2,340.00'
     }
     return render_template('user_dashboard.html', data=user_data)

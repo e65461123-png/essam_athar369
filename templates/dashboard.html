@@ -1,26 +1,11 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>ATHEER GLOBAL</title>
-    <link rel="stylesheet" href="/static/style.css">
-</head>
+@app.route("/dashboard")
+def dashboard():
+    if "user" not in session:
+        return redirect("/login")
 
-<body>
+    user_data = {
+        "name": session["user"],
+        "balance": 369.00
+    }
 
-<div class="sidebar">
-    <h2>ATHEER</h2>
-    <a href="/dashboard">Dashboard</a>
-    <a href="/admin">Admin</a>
-    <a href="/logout">Logout</a>
-</div>
-
-<div class="main">
-    <h1>Welcome {{ user }} 🌍</h1>
-
-    <div class="card">Market: ACTIVE 🟢</div>
-    <div class="card">System: ONLINE 🟢</div>
-    <div class="card">Users: LIVE 👥</div>
-</div>
-
-</body>
-</html>
+    return render_template("dashboard.html", data=user_data)

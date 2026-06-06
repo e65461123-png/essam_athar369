@@ -2,19 +2,38 @@
 <html>
 <head>
     <title>AETHER 369</title>
+    <style>
+        body {
+            background: #0f172a;
+            color: white;
+            font-family: Arial;
+            text-align: center;
+            padding-top: 80px;
+        }
+        .card {
+            background: #1e293b;
+            padding: 30px;
+            width: 300px;
+            margin: auto;
+            border-radius: 15px;
+        }
+        a {
+            color: red;
+            text-decoration: none;
+            display: block;
+            margin-top: 20px;
+        }
+    </style>
 </head>
-
 <body>
 
-<h1>AETHER 369</h1>
+    <div class="card">
+        <h2>AETHER 369</h2>
+        <h3>Welcome {{ user }}</h3>
+        <p>Balance: USD {{ balance }}</p>
 
-<p>👤 Welcome {{ data.name }}</p>
-
-<p>💰 Balance: USD {{ data.balance }}</p>
-
-<p>🟢 Dashboard Active</p>
-
-<a href="/logout">Logout</a>
+        <a href="/logout">Logout</a>
+    </div>
 
 </body>
 </html>

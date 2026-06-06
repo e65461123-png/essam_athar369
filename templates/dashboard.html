@@ -4,33 +4,62 @@
     <title>AETHER 369</title>
     <style>
         body {
-            background: #0f172a;
-            color: white;
+            margin: 0;
             font-family: Arial;
-            text-align: center;
-            padding-top: 80px;
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
         }
+
         .card {
-            background: #1e293b;
+            background: #111827;
             padding: 30px;
-            width: 300px;
-            margin: auto;
-            border-radius: 15px;
+            border-radius: 20px;
+            width: 350px;
+            text-align: center;
+            box-shadow: 0 0 20px rgba(0,0,0,0.4);
         }
+
+        .title {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .balance {
+            color: #22c55e;
+            font-size: 18px;
+            margin: 15px 0;
+        }
+
         a {
-            color: red;
+            display: inline-block;
+            margin-top: 15px;
+            padding: 10px 20px;
+            background: #ef4444;
+            color: white;
             text-decoration: none;
-            display: block;
-            margin-top: 20px;
+            border-radius: 10px;
+        }
+
+        a:hover {
+            background: #dc2626;
         }
     </style>
 </head>
 <body>
 
     <div class="card">
-        <h2>AETHER 369</h2>
+        <div class="title">AETHER 369</div>
+
         <h3>Welcome {{ user }}</h3>
-        <p>Balance: USD {{ balance }}</p>
+
+        <div class="balance">
+            Balance: USD {{ balance }}
+        </div>
 
         <a href="/logout">Logout</a>
     </div>

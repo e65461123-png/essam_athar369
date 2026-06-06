@@ -20,7 +20,7 @@ def user_dashboard():
         'btc_price': get_btc(),  # السعر الحي هيسمع هنا فوراً
         'gold_price': '2,340.00'
     }
-    # متظبطة هنا عشان تقرأ ملفكdashboard.html بالظبط وبدون أخطاء
+    # متظبطة هنا عشان تقرأ ملفك اللي اسمه dashboard.html اللي في المجلد فوراً
     return render_template('dashboard.html', data=user_data)
 
 # 2. لوحة تحكم الأدمن (المسؤول)

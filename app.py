@@ -2,9 +2,9 @@ from flask import Flask, render_template, request, session, redirect
 from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
-app.secret_key = "atheer-global-key"
+app.secret_key = "atheer-platform-key"
 
-# ================= FAKE DB (مرحلة أولى) =================
+# 🔐 قاعدة بيانات بسيطة (مرحلة أولى)
 users = {
     "admin": {
         "password": generate_password_hash("1234"),
@@ -12,7 +12,6 @@ users = {
     }
 }
 
-# ================= HOME =================
 @app.route("/")
 def home():
     return redirect("/login")
@@ -22,12 +21,13 @@ def home():
 def register():
     if request.method == "POST":
         username = request.form["username"]
+        password = request.form["password"]
 
         if username in users:
             return "User already exists ❌"
 
         users[username] = {
-            "password": generate_password_hash(request.form["password"]),
+            "password": generate_password_hash(password),
             "role": "user"
         }
 
@@ -59,15 +59,12 @@ def dashboard():
     if "user" not in session:
         return redirect("/login")
 
-    return render_template("dashboard.html", user=session["user"])
+    user_data = {
+        "name": session["user"],
+        "balance": 369.00
+    }
 
-# ================= ADMIN =================
-@app.route("/admin")
-def admin():
-    if session.get("role") != "admin":
-        return "Access Denied ❌"
-
-    return render_template("admin.html", user=session["user"])
+    return render_template("dashboard.html", data=user_data)
 
 # ================= LOGOUT =================
 @app.route("/logout")
@@ -75,6 +72,5 @@ def logout():
     session.clear()
     return redirect("/login")
 
-# ================= RUN =================
 if __name__ == "__main__":
     app.run(debug=True)

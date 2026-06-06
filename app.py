@@ -1,36 +1,21 @@
-from flask import Flask, render_template
-import requests
+from flask import Flask
+import os
+import psycopg2
 
 app = Flask(__name__)
 
-# دالة جلب سعر البيتكوين الحي مباشرة من بينانس
-def get_btc():
-    try:
-        return f"{float(requests.get('https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT', timeout=3).json()['price']):,.2f}"
-    except:
-        return "68,230.00"
-
-# 1. لوحة تحكم المستخدم العادي (العميل) - المسار الرئيسي للموقع
 @app.route('/')
-@app.route('/dashboard')
-def user_dashboard():
-    user_data = {
-        'username': 'عصام الكومي',
-        'wallet_balance': '1,250.00',
-        'btc_price': get_btc(),  # السعر الحي هيسمع هنا فوراً
-        'gold_price': '2,340.00'
-    }
-    # تم التعديل لـ dashboard.html ليطابق ملفك الفعلي ويفتح بدون أخطاء
-    return render_template('dashboard.html', data=user_data)
-
-# 2. لوحة تحكم الأدمن (المسؤول)
-@app.route('/admin/dashboard')
-def admin_dashboard():
-    admin_data = {
-        'username': 'admin',
-        'balance': '369.0'
-    }
-    return render_template('dashboard.html', data=admin_data)
+def index():
+    # سحب الرابط اللي إنت حطيته في الـ Environment
+    DATABASE_URL = os.environ.get('DATABASE_URL')
+    
+    try:
+        # محاولة الاتصال
+        conn = psycopg2.connect(DATABASE_URL)
+        conn.close()
+        return "<h1>تهانينا يا وحش! الاتصال بقاعدة البيانات شغال 100%.</h1>"
+    except Exception as e:
+        return f"<h1>مشكلة في الاتصال: {str(e)}</h1>"
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()

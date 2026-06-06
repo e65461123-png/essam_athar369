@@ -1,21 +1,25 @@
 from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
 import os
-import psycopg2
 
 app = Flask(__name__)
+# هذا السطر يقرأ الرابط الذي وضعناه في إعدادات Render
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
+db = SQLAlchemy(app)
 
-@app.route('/')
-def index():
-    # سحب الرابط اللي إنت حطيته في الـ Environment
-    DATABASE_URL = os.environ.get('DATABASE_URL')
-    
-    try:
-        # محاولة الاتصال
-        conn = psycopg2.connect(DATABASE_URL)
-        conn.close()
-        return "<h1>تهانينا يا وحش! الاتصال بقاعدة البيانات شغال 100%.</h1>"
-    except Exception as e:
-        return f"<h1>مشكلة في الاتصال: {str(e)}</h1>"
+# --- ضع كود الجدول هنا ---
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    balance = db.Column(db.Float, default=0.0)
 
-if __name__ == '__main__':
-    app.run()
+    def __repr__(self):
+        return f'<User {self.username}>'
+
+# --- وضع كود إنشاء الجدول هنا ---
+@app.route('/initdb')
+def initdb():
+    db.create_all()
+    return "تم إنشاء جداول قاعدة البيانات بنجاح!"
+
+# (وبقية كود الموقع الخاص بك هنا)

@@ -1,20 +1,28 @@
 from flask import Flask, render_template
+import requests
 
 app = Flask(__name__)
 
-# 1. لوحة تحكم المستخدم العادي (العميل) - الرابط الرئيسي للموقع
+# دالة ذكية ومختصرة لجلب السعر الحي
+def get_btc():
+    try:
+        return f"{float(requests.get('https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT', timeout=3).json()['price']):,.2f}"
+    except:
+        return "68,230.00"
+
+# 1. لوحة تحكم المستخدم العادي (العميل)
 @app.route('/')
 @app.route('/dashboard')
 def user_dashboard():
     user_data = {
         'username': 'عصام الكومي',
         'wallet_balance': '1,250.00',
-        'btc_price': '68,230.00',
+        'btc_price': get_btc(),  # السعر الحي هيسمع هنا فوراً
         'gold_price': '2,340.00'
     }
     return render_template('user_dashboard.html', data=user_data)
 
-# 2. لوحة تحكم الأدمن (المسؤول) - الرابط الفرعي
+# 2. لوحة تحكم الأدمن (المسؤول)
 @app.route('/admin/dashboard')
 def admin_dashboard():
     admin_data = {

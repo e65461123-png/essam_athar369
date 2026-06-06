@@ -1,43 +1,68 @@
-from flask import Flask, request, jsonify
-from flask_sqlalchemy import SQLAlchemy
-import os
-
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
-db = SQLAlchemy(app)
-
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
-    balance = db.Column(db.Float, default=0.0)
-
 @app.route('/')
 def index():
-    return "<h1>مرحباً بك في المحفظة الرقمية</h1>"
+    return """
+    <!DOCTYPE html>
+    <html lang="ar" dir="rtl">
+    <head>
+        <meta charset="UTF-8">
+        <title>AETHER 369</title>
+        <style>
+            body{
+                background:#0b0b0b;
+                color:white;
+                text-align:center;
+                font-family:Arial;
+                margin-top:50px;
+            }
 
-@app.route('/initdb')
-def initdb():
-    db.create_all()
-    return "تم إنشاء الجداول بنجاح!"
+            .card{
+                width:80%;
+                margin:auto;
+                padding:20px;
+                border:1px solid #00ff99;
+                border-radius:15px;
+            }
 
-@app.route('/create_wallet', methods=['POST'])
-def create_wallet():
-    data = request.json
-    username = data.get('username')
-    if User.query.filter_by(username=username).first():
-        return jsonify({"message": "المستخدم موجود بالفعل!"}), 400
-    new_user = User(username=username, balance=100.0)
-    db.session.add(new_user)
-    db.session.commit()
-    return jsonify({"message": f"تم إنشاء محفظة لـ {username} برصيد 100!"}), 201
+            h1{
+                color:#00ff99;
+            }
 
-# --- الإضافة الجديدة ---
-@app.route('/balance/<username>')
-def get_balance(username):
-    user = User.query.filter_by(username=username).first()
-    if user:
-        return f"<h1>مرحباً {user.username}</h1><p>رصيدك الحالي هو: {user.balance} دولار</p>"
-    return "<h1>المستخدم غير موجود</h1>"
+            a{
+                display:inline-block;
+                margin:10px;
+                padding:12px 20px;
+                background:#00ff99;
+                color:black;
+                text-decoration:none;
+                border-radius:8px;
+                font-weight:bold;
+            }
 
-if __name__ == '__main__':
-    app.run()
+            a:hover{
+                opacity:.8;
+            }
+        </style>
+    </head>
+    <body>
+
+        <div class="card">
+
+            <h1>🔥 AETHER 369</h1>
+
+            <h2>👑 القائد: عصام الكومي</h2>
+
+            <hr>
+
+            <h3>مرحباً بك في المحفظة الرقمية</h3>
+
+            <p>نظام إدارة المحافظ والأرصدة الرقمية</p>
+
+            <a href="/initdb">تهيئة قاعدة البيانات</a>
+
+            <a href="/balance/essam">عرض رصيد Essam</a>
+
+        </div>
+
+    </body>
+    </html>
+    """

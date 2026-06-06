@@ -2,11 +2,10 @@ from flask import Flask, render_template
 
 app = Flask(__name__)
 
-# 1. لوحة تحكم المستخدم العادي (العميل) - المسار الرئيسي للموقع
+# 1. لوحة تحكم المستخدم العادي (العميل) - الرابط الرئيسي للموقع
 @app.route('/')
 @app.route('/dashboard')
 def user_dashboard():
-    # تمرير البيانات الآمنة والثابتة لملء الفراغات في واجهة المستخدم
     user_data = {
         'username': 'عصام الكومي',
         'wallet_balance': '1,250.00',
@@ -15,7 +14,7 @@ def user_dashboard():
     }
     return render_template('user_dashboard.html', data=user_data)
 
-# 2. لوحة تحكم الأدمن (المسؤول)
+# 2. لوحة تحكم الأدمن (المسؤول) - الرابط الفرعي
 @app.route('/admin/dashboard')
 def admin_dashboard():
     admin_data = {

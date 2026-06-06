@@ -1,18 +1,27 @@
-<div class="vault-section">
-    <h4 style="margin:0;">خزنة القيادة المؤمنة</h4>
-    <input type="password" id="vaultPass" placeholder="أدخل كود الخزنة" style="width:100%; background:#111; color:#00ff41; border:1px solid #333; padding:8px; margin:10px 0;">
-    <button onclick="openVault()" style="width:100%; background:#00ff41; border:none; padding:10px; font-weight:bold; cursor:pointer;">فتح الوصول</button>
-    <div id="vaultResult" style="margin-top:10px; font-weight:bold; color: #fff;"></div>
-</div>
-
 <script>
-    function openVault() {
-        var pass = document.getElementById('vaultPass').value;
-        if(pass === "369369") {
-            document.getElementById('vaultResult').innerText = "تم الوصول بنجاح: الرصيد الحالي 999,999$";
-            document.getElementById('vaultResult').style.color = "#00ff41";
-        } else {
-            alert("كلمة سر الخزنة غير صحيحة!");
-        }
+async function openVault() {
+    const pass = document.getElementById('vaultPass').value;
+
+    const response = await fetch('/api/vault', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            password: pass
+        })
+    });
+
+    const data = await response.json();
+
+    const result = document.getElementById('vaultResult');
+
+    if (data.success) {
+        result.innerText = data.message;
+        result.style.color = "#00ff41";
+    } else {
+        result.innerText = data.message;
+        result.style.color = "red";
     }
+}
 </script>

@@ -1,27 +1,108 @@
-<script>
-async function openVault() {
-    const pass = document.getElementById('vaultPass').value;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ATHEER 369 Dashboard</title>
 
-    const response = await fetch('/api/vault', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            password: pass
-        })
-    });
-
-    const data = await response.json();
-
-    const result = document.getElementById('vaultResult');
-
-    if (data.success) {
-        result.innerText = data.message;
-        result.style.color = "#00ff41";
-    } else {
-        result.innerText = data.message;
-        result.style.color = "red";
-    }
+<style>
+body {
+    margin: 0;
+    font-family: Arial;
+    background: #0b0f19;
+    color: white;
 }
-</script>
+
+/* Sidebar */
+.sidebar {
+    width: 220px;
+    height: 100vh;
+    background: #111827;
+    position: fixed;
+    padding: 20px;
+}
+
+.sidebar h2 {
+    color: #f0b90b;
+}
+
+.sidebar a {
+    display: block;
+    color: white;
+    padding: 10px;
+    text-decoration: none;
+    margin-top: 10px;
+    border-radius: 6px;
+}
+
+.sidebar a:hover {
+    background: #1f2937;
+}
+
+/* Main */
+.main {
+    margin-left: 240px;
+    padding: 20px;
+}
+
+/* Cards */
+.card {
+    background: #111827;
+    padding: 20px;
+    border-radius: 12px;
+    margin: 10px;
+    display: inline-block;
+    width: 250px;
+}
+
+.green { color: #00ff99; }
+.red { color: #ff4d4d; }
+
+.topbar {
+    background: #111827;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="sidebar">
+    <h2>ATHEER 369</h2>
+    <a href="#">Dashboard</a>
+    <a href="#">Markets</a>
+    <a href="#">Wallet</a>
+    <a href="#">Trade</a>
+    <a href="/logout">Logout</a>
+</div>
+
+<div class="main">
+
+    <div class="topbar">
+        Welcome {{ user }} 👋
+    </div>
+
+    <div class="card">
+        <h3>BTC/USDT</h3>
+        <p class="green">+2.34%</p>
+        <p>Price: 68,450</p>
+    </div>
+
+    <div class="card">
+        <h3>ETH/USDT</h3>
+        <p class="red">-1.12%</p>
+        <p>Price: 3,120</p>
+    </div>
+
+    <div class="card">
+        <h3>BNB/USDT</h3>
+        <p class="green">+0.88%</p>
+        <p>Price: 610</p>
+    </div>
+
+</div>
+
+</body>
+</html>

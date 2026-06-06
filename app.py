@@ -4,7 +4,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 app = Flask(__name__)
 app.secret_key = "atheer-platform-key"
 
-# ================= USERS (مرحلة بسيطة) =================
+# ================= USERS =================
 users = {
     "admin": {
         "password": generate_password_hash("1234"),

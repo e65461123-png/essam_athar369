@@ -1,175 +1,147 @@
-from flask import Flask, request, redirect, url_for, session, render_template_string
+from flask import Flask, request, redirect, session
 from flask_sqlalchemy import SQLAlchemy
-from flask_bcrypt import Bcrypt
+from werkzeug.security import generate_password_hash, check_password_hash
+from datetime import datetime
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'super-secret-key-change'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
+app.config['SECRET_KEY'] = 'trade-secret'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///trade.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
-bcrypt = Bcrypt(app)
 
 # =========================
-# 📊 DATABASE
+# 👤 USER
 # =========================
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
-    password = db.Column(db.String(255), nullable=False)
-    role = db.Column(db.String(20), default="user")
-    balance = db.Column(db.Float, default=100.0)
+    username = db.Column(db.String(80), unique=True)
+    password = db.Column(db.String(255))
+    balance = db.Column(db.Float, default=1000.0)
+
+# =========================
+# 📊 ORDER BOOK
+# =========================
+class Order(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user = db.Column(db.String(80))
+    type = db.Column(db.String(10))  # buy / sell
+    amount = db.Column(db.Float)
+    price = db.Column(db.Float)
+    status = db.Column(db.String(20), default="open")
+    created = db.Column(db.DateTime, default=datetime.utcnow)
 
 # =========================
 # 🏠 HOME
 # =========================
 @app.route('/')
 def home():
-    if 'user_id' in session:
-        user = User.query.get(session['user_id'])
-        return f"""
-        <h2>👋 Welcome {user.username}</h2>
-        <p>💰 Balance: {user.balance}$</p>
-        <a href='/dashboard'>Dashboard</a><br>
-        <a href='/logout'>Logout</a>
-        """
     return """
-    <h2>🏠 Home</h2>
-    <a href='/login'>Login</a> |
-    <a href='/register'>Register</a>
+    <h2>📈 Trading Platform</h2>
+    <a href='/buy'>Buy</a> |
+    <a href='/sell'>Sell</a> |
+    <a href='/orders'>Orders</a>
     """
 
 # =========================
-# 🆕 REGISTER
+# 🟢 BUY ORDER
 # =========================
-@app.route('/register', methods=['GET', 'POST'])
-def register():
+@app.route('/buy', methods=['GET','POST'])
+def buy():
     if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
+        user = session['user']
+        amount = float(request.form['amount'])
+        price = float(request.form['price'])
 
-        if User.query.filter_by(username=username).first():
-            return "❌ Username already exists"
-
-        hashed = bcrypt.generate_password_hash(password).decode('utf-8')
-
-        new_user = User(username=username, password=hashed)
-        db.session.add(new_user)
+        order = Order(user=user, type="buy", amount=amount, price=price)
+        db.session.add(order)
         db.session.commit()
 
-        return redirect('/login')
+        match_orders()
+        return redirect('/orders')
 
-    return render_template_string("""
-    <h2>🆕 Register</h2>
-    <form method="post">
-        <input name="username" placeholder="Username"><br>
-        <input name="password" type="password" placeholder="Password"><br>
-        <button type="submit">Register</button>
+    return """
+    <form method='post'>
+        <input name='amount' placeholder='Amount'>
+        <input name='price' placeholder='Price'>
+        <button>Buy</button>
     </form>
-    """)
+    """
 
 # =========================
-# 🔐 LOGIN
+# 🔴 SELL ORDER
 # =========================
-@app.route('/login', methods=['GET', 'POST'])
-def login():
+@app.route('/sell', methods=['GET','POST'])
+def sell():
     if request.method == 'POST':
-        user = User.query.filter_by(username=request.form['username']).first()
+        user = session['user']
+        amount = float(request.form['amount'])
+        price = float(request.form['price'])
 
-        if user and bcrypt.check_password_hash(user.password, request.form['password']):
-            session['user_id'] = user.id
-            session['role'] = user.role
-            return redirect('/dashboard')
+        order = Order(user=user, type="sell", amount=amount, price=price)
+        db.session.add(order)
+        db.session.commit()
 
-        return "❌ Invalid credentials"
+        match_orders()
+        return redirect('/orders')
 
-    return render_template_string("""
-    <h2>🔐 Login</h2>
-    <form method="post">
-        <input name="username" placeholder="Username"><br>
-        <input name="password" type="password" placeholder="Password"><br>
-        <button type="submit">Login</button>
+    return """
+    <form method='post'>
+        <input name='amount' placeholder='Amount'>
+        <input name='price' placeholder='Price'>
+        <button>Sell</button>
     </form>
-    """)
-
-# =========================
-# 📊 DASHBOARD
-# =========================
-@app.route('/dashboard')
-def dashboard():
-    if 'user_id' not in session:
-        return redirect('/login')
-
-    user = User.query.get(session['user_id'])
-
-    admin_panel = ""
-    if user.role == "admin":
-        admin_panel = "<a href='/admin'>⚙ Admin Panel</a><br>"
-
-    return f"""
-    <h2>📊 Dashboard</h2>
-    <p>👤 User: {user.username}</p>
-    <p>💰 Balance: {user.balance}$</p>
-
-    {admin_panel}
-
-    <a href='/add_money'>➕ Add Money</a><br>
-    <a href='/logout'>Logout</a>
     """
 
 # =========================
-# 💰 ADD MONEY (Wallet)
+# ⚡ MATCHING ENGINE (CORE)
 # =========================
-@app.route('/add_money')
-def add_money():
-    if 'user_id' not in session:
-        return redirect('/login')
+def match_orders():
+    buys = Order.query.filter_by(type="buy", status="open").all()
+    sells = Order.query.filter_by(type="sell", status="open").all()
 
-    user = User.query.get(session['user_id'])
-    user.balance += 50
-    db.session.commit()
+    for b in buys:
+        for s in sells:
+            if b.price >= s.price and b.status == "open" and s.status == "open":
 
-    return redirect('/dashboard')
+                trade_amount = min(b.amount, s.amount)
 
-# =========================
-# ⚙ ADMIN PANEL
-# =========================
-@app.route('/admin')
-def admin():
-    if 'role' not in session or session['role'] != 'admin':
-        return "⛔ Not allowed"
+                b.amount -= trade_amount
+                s.amount -= trade_amount
 
-    users = User.query.all()
+                if b.amount == 0:
+                    b.status = "closed"
+                if s.amount == 0:
+                    s.status = "closed"
 
-    users_list = "".join(
-        f"<li>{u.username} - {u.balance}$ - {u.role}</li>" for u in users
-    )
-
-    return f"""
-    <h2>⚙ Admin Panel</h2>
-    <ul>{users_list}</ul>
-    <a href='/dashboard'>Back</a>
-    """
+                db.session.commit()
 
 # =========================
-# 🚪 LOGOUT
+# 📊 ORDERS PAGE
 # =========================
-@app.route('/logout')
-def logout():
-    session.clear()
-    return redirect('/')
+@app.route('/orders')
+def orders():
+    data = Order.query.all()
+
+    out = ""
+    for o in data:
+        out += f"<p>{o.user} | {o.type} | {o.amount} | {o.price} | {o.status}</p>"
+
+    return out
 
 # =========================
-# 🔥 INIT DB + ADMIN SEED
+# 🔐 INIT
 # =========================
 with app.app_context():
     db.create_all()
 
-    # إنشاء admin تلقائي لو مش موجود
     if not User.query.filter_by(username="admin").first():
-        admin_pass = bcrypt.generate_password_hash("admin123").decode('utf-8')
-        admin_user = User(username="admin", password=admin_pass, role="admin", balance=9999)
-        db.session.add(admin_user)
+        admin = User(
+            username="admin",
+            password=generate_password_hash("admin123"),
+            balance=999999
+        )
+        db.session.add(admin)
         db.session.commit()
 
 # =========================

@@ -1,108 +1,63 @@
 from flask import Flask, render_template, request, session, redirect
-from werkzeug.security import generate_password_hash, check_password_hash
-import sqlite3
 
 app = Flask(__name__)
-app.secret_key = "atheer-platform-key"
+app.secret_key = "atheer-platform"
 
-DB = "users.db"
+# ================= USERS (تقدر تغيرهم بسهولة) =================
+users = {
+    "admin": "1234",
+    "Essam": "369369"
+}
 
-# ================= DB INIT =================
-def init_db():
-    conn = sqlite3.connect(DB)
-    c = conn.cursor()
-
-    c.execute("""
-        CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT UNIQUE,
-            password TEXT,
-            role TEXT,
-            balance REAL DEFAULT 369
-        )
-    """)
-
-    # admin user
-    c.execute("SELECT * FROM users WHERE username=?", ("admin",))
-    if not c.fetchone():
-        c.execute(
-            "INSERT INTO users (username, password, role, balance) VALUES (?, ?, ?, ?)",
-            ("admin", generate_password_hash("1234"), "admin", 369)
-        )
-
-    conn.commit()
-    conn.close()
-
-init_db()
-
-# ================= ROUTES =================
+# ================= HOME =================
 @app.route("/")
 def home():
     return redirect("/login")
 
+# ================= REGISTER (اختياري بسيط) =================
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
         username = request.form["username"]
-        password = generate_password_hash(request.form["password"])
+        password = request.form["password"]
 
-        conn = sqlite3.connect(DB)
-        c = conn.cursor()
-
-        try:
-            c.execute(
-                "INSERT INTO users (username, password, role) VALUES (?, ?, ?)",
-                (username, password, "user")
-            )
-            conn.commit()
-        except:
+        if username in users:
             return "User already exists ❌"
-        finally:
-            conn.close()
 
+        users[username] = password
         return redirect("/login")
 
     return render_template("register.html")
 
+# ================= LOGIN =================
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
         username = request.form["username"]
         password = request.form["password"]
 
-        conn = sqlite3.connect(DB)
-        c = conn.cursor()
-
-        c.execute("SELECT username, password, role FROM users WHERE username=?", (username,))
-        user = c.fetchone()
-        conn.close()
-
-        if user and check_password_hash(user[1], password):
-            session["user"] = user[0]
-            session["role"] = user[2]
+        if username in users and users[username] == password:
+            session["user"] = username
             return redirect("/dashboard")
 
         return "Login Failed ❌"
 
     return render_template("login.html")
 
+# ================= DASHBOARD =================
 @app.route("/dashboard")
 def dashboard():
     if "user" not in session:
         return redirect("/login")
 
-    conn = sqlite3.connect(DB)
-    c = conn.cursor()
+    return f"""
+    <h1>AETHER 369</h1>
+    <h2>Welcome {session['user']}</h2>
+    <p>Dashboard Active 🟢</p>
+    <a href="/logout">Logout</a>
+    """
 
-    c.execute("SELECT username, balance FROM users WHERE username=?", (session["user"],))
-    user = c.fetchone()
-    conn.close()
-
-    return render_template("dashboard.html", data={
-        "name": user[0],
-        "balance": user[1]
-    })
-
+# ================= LOGOUT =================
 @app.route("/logout")
 def logout():
     session.clear()
@@ -110,4 +65,4 @@ def logout():
 
 # ================= RUN =================
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    app.run(debug=True)

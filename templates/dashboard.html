@@ -2,24 +2,19 @@
 <html>
 <head>
     <title>AETHER 369</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 
 <body>
 
-<div class="card">
+<h1>AETHER 369</h1>
 
-    <h1>🚀 AETHER 369</h1>
+<p>👤 Welcome {{ data.name }}</p>
 
-    <p>👤 المستخدم: {{ data.name }}</p>
+<p>💰 Balance: USD {{ data.balance }}</p>
 
-    <p>💰 الرصيد: USD {{ data.balance }}</p>
+<p>🟢 Dashboard Active</p>
 
-    <p>🟢 الحالة: Active System</p>
-
-    <a href="/logout">Logout</a>
-
-</div>
+<a href="/logout">Logout</a>
 
 </body>
 </html>

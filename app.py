@@ -1,9 +1,10 @@
-from flask import Flask, request, redirect
+from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'exchange-pro'
+app.config['SECRET_KEY'] = 'ultra-exchange-core'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///exchange.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -15,156 +16,160 @@ db = SQLAlchemy(app)
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True)
+    password = db.Column(db.String(255))
     balance = db.Column(db.Float, default=1000.0)
 
 # =========================
-# 📊 ORDERS
+# 📊 ORDERS (REAL ORDER BOOK)
 # =========================
 class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user = db.Column(db.String(80))
-    type = db.Column(db.String(10))  # buy / sell
-    amount = db.Column(db.Float)
+    side = db.Column(db.String(4))  # buy / sell
     price = db.Column(db.Float)
+    amount = db.Column(db.Float)
+    filled = db.Column(db.Float, default=0.0)
     status = db.Column(db.String(20), default="open")
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
 # =========================
-# ⚡ MATCH ENGINE (REAL CORE)
+# 💰 TRADES (EXECUTIONS)
 # =========================
-def match_orders():
-    buys = Order.query.filter_by(type="buy", status="open").all()
-    sells = Order.query.filter_by(type="sell", status="open").all()
+class Trade(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    buy_user = db.Column(db.String(80))
+    sell_user = db.Column(db.String(80))
+    price = db.Column(db.Float)
+    amount = db.Column(db.Float)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
-    for b in buys:
-        for s in sells:
+# =========================
+# ⚡ MATCHING ENGINE (REAL CORE)
+# =========================
+def match_engine():
 
-            if b.price >= s.price and b.status == "open" and s.status == "open":
+    buys = Order.query.filter_by(side="buy", status="open").order_by(Order.price.desc(), Order.timestamp.asc()).all()
+    sells = Order.query.filter_by(side="sell", status="open").order_by(Order.price.asc(), Order.timestamp.asc()).all()
 
-                trade = min(b.amount, s.amount)
+    for buy in buys:
+        for sell in sells:
 
-                b.amount -= trade
-                s.amount -= trade
+            if buy.price >= sell.price and buy.status == "open" and sell.status == "open":
 
-                if b.amount <= 0:
-                    b.status = "closed"
-                if s.amount <= 0:
-                    s.status = "closed"
+                trade_amount = min(buy.amount - buy.filled, sell.amount - sell.filled)
+                trade_price = sell.price
+
+                # update fills
+                buy.filled += trade_amount
+                sell.filled += trade_amount
+
+                # mark status
+                if buy.filled >= buy.amount:
+                    buy.status = "filled"
+                if sell.filled >= sell.amount:
+                    sell.status = "filled"
+
+                # save trade
+                trade = Trade(
+                    buy_user=buy.user,
+                    sell_user=sell.user,
+                    price=trade_price,
+                    amount=trade_amount
+                )
+                db.session.add(trade)
 
                 db.session.commit()
 
 # =========================
-# 🏠 DASHBOARD (LIVE VIEW)
+# 🆕 REGISTER
 # =========================
-@app.route('/')
-def home():
+@app.route('/register', methods=['POST'])
+def register():
 
-    orders = Order.query.all()
+    data = request.json
 
-    buy_html = ""
-    sell_html = ""
+    user = User(
+        username=data["username"],
+        password=generate_password_hash(data["password"])
+    )
 
-    for o in orders:
-        row = f"<tr><td>{o.amount}</td><td>{o.price}</td><td>{o.status}</td></tr>"
+    db.session.add(user)
+    db.session.commit()
 
-        if o.type == "buy":
-            buy_html += row
-        else:
-            sell_html += row
-
-    return f"""
-    <html>
-    <head>
-        <title>PRO EXCHANGE</title>
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    </head>
-
-    <body class="bg-dark text-white text-center">
-
-        <h1 class="mt-4">📈 PRO MINI EXCHANGE</h1>
-        <p>💰 Live Matching Engine System</p>
-
-        <div class="mt-3">
-            <a class="btn btn-success m-2" href="/buy">BUY</a>
-            <a class="btn btn-danger m-2" href="/sell">SELL</a>
-        </div>
-
-        <div class="container mt-4 row">
-
-            <div class="col-md-6">
-                <h3>🟢 BUY ORDERS</h3>
-                <table class="table table-dark">
-                    <tr><th>Amount</th><th>Price</th><th>Status</th></tr>
-                    {buy_html}
-                </table>
-            </div>
-
-            <div class="col-md-6">
-                <h3>🔴 SELL ORDERS</h3>
-                <table class="table table-dark">
-                    <tr><th>Amount</th><th>Price</th><th>Status</th></tr>
-                    {sell_html}
-                </table>
-            </div>
-
-        </div>
-
-    </body>
-    </html>
-    """
+    return jsonify({"status": "user created"})
 
 # =========================
-# 🟢 BUY ORDER
+# 🔐 LOGIN
 # =========================
-@app.route('/buy', methods=['GET','POST'])
-def buy():
-    if request.method == 'POST':
-        o = Order(
-            user="user",
-            type="buy",
-            amount=float(request.form['amount']),
-            price=float(request.form['price'])
-        )
-        db.session.add(o)
-        db.session.commit()
+@app.route('/login', methods=['POST'])
+def login():
 
-        match_orders()
-        return redirect('/')
+    data = request.json
 
-    return """
-    <h2>Buy Order</h2>
-    <form method='post'>
-        <input name='amount' placeholder='Amount'><br><br>
-        <input name='price' placeholder='Price'><br><br>
-        <button>Submit Buy</button>
-    </form>
-    """
+    user = User.query.filter_by(username=data["username"]).first()
+
+    if user and check_password_hash(user.password, data["password"]):
+        return jsonify({"status": "ok"})
+
+    return jsonify({"status": "fail"})
 
 # =========================
-# 🔴 SELL ORDER
+# 📥 PLACE ORDER (REAL API)
 # =========================
-@app.route('/sell', methods=['GET','POST'])
-def sell():
-    if request.method == 'POST':
-        o = Order(
-            user="user",
-            type="sell",
-            amount=float(request.form['amount']),
-            price=float(request.form['price'])
-        )
-        db.session.add(o)
-        db.session.commit()
+@app.route('/order', methods=['POST'])
+def place_order():
 
-        match_orders()
-        return redirect('/')
+    data = request.json
 
-    return """
-    <h2>Sell Order</h2>
-    <form method='post'>
-        <input name='amount'><br><br>
-        <input name='price'><br><br>
-        <button>Submit Sell</button>
-    </form>
-    """
+    order = Order(
+        user=data["user"],
+        side=data["side"],
+        price=float(data["price"]),
+        amount=float(data["amount"])
+    )
+
+    db.session.add(order)
+    db.session.commit()
+
+    match_engine()
+
+    return jsonify({"status": "order placed"})
+
+# =========================
+# 📊 ORDER BOOK
+# =========================
+@app.route('/book')
+def book():
+
+    buys = Order.query.filter_by(side="buy", status="open").all()
+    sells = Order.query.filter_by(side="sell", status="open").all()
+
+    return jsonify({
+        "buy": [
+            {"user": o.user, "price": o.price, "amount": o.amount - o.filled}
+            for o in buys
+        ],
+        "sell": [
+            {"user": o.user, "price": o.price, "amount": o.amount - o.filled}
+            for o in sells
+        ]
+    })
+
+# =========================
+# 💰 USERS WALLET VIEW
+# =========================
+@app.route('/wallet/<username>')
+def wallet(username):
+
+    user = User.query.filter_by(username=username).first()
+
+    if not user:
+        return jsonify({"error": "not found"})
+
+    return jsonify({
+        "user": user.username,
+        "balance": user.balance
+    })
 
 # =========================
 # 🔥 INIT DB

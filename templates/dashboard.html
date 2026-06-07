@@ -2,67 +2,49 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>AETHER 369</title>
-    <style>
-        body { background-color: #0b0f19; color: white; font-family: sans-serif; padding: 20px; }
-        input { padding: 10px; margin: 5px; }
-        button { padding: 10px 20px; background: green; color: white; border: none; cursor: pointer; }
-        table { width: 100%; margin-top: 20px; border-collapse: collapse; }
-        th, td { border: 1px solid #333; padding: 10px; text-align: center; }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AETHER 369 | لوحة التحكم</title>
+    <!-- استدعاء Tailwind CSS للتصميم -->
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
+<body class="bg-gray-900 text-white min-h-screen p-4">
 
-    <h1>PRO TRADING DASHBOARD</h1>
-
-    <div>
-        <input type="number" id="amountInput" placeholder="الكمية">
-        <input type="number" id="priceInput" placeholder="السعر">
-        <button onclick="sendBuyOrder()">BUY</button>
+    <!-- العنوان واسم المستخدم -->
+    <h1 class="text-xl font-bold mb-4">AETHER 369 <span class="text-sm font-normal text-gray-400">أهلاً بك، عصام الكومي</span></h1>
+    
+    <!-- قسم الرصيد -->
+    <div class="bg-gray-800 p-6 rounded-2xl mb-6 shadow-lg">
+        <p class="text-gray-400">رصيد محفظتك المتاح</p>
+        <h2 class="text-4xl font-bold text-green-400 my-2">$1,250.00</h2>
+        <div class="flex gap-2 mt-4">
+            <button class="bg-green-500 text-black px-6 py-2 rounded-lg font-bold">إيداع أموال 📥</button>
+            <button class="bg-gray-700 text-white px-6 py-2 rounded-lg font-bold">سحب الأرباح 📤</button>
+        </div>
     </div>
 
-    <table id="orderTable">
-        <thead>
-            <tr>
-                <th>النوع</th>
-                <th>الكمية</th>
-                <th>السعر</th>
-            </tr>
-        </thead>
-        <tbody id="orderBody"></tbody>
-    </table>
+    <!-- أسعار الأسواق الحية -->
+    <div class="bg-gray-800 p-6 rounded-2xl mb-6 shadow-lg">
+        <h3 class="text-gray-400 mb-4">أسعار الأسواق الحية</h3>
+        <div class="flex justify-between items-center bg-gray-900 p-4 rounded-xl mb-3 border border-gray-700">
+            <div>
+                <p class="font-bold">البيتكوين (BTC)</p>
+                <p class="text-xs text-green-500">مباشر من بينانس</p>
+            </div>
+            <p class="text-yellow-500 font-mono">$68,230.00</p>
+        </div>
+        <div class="flex justify-between items-center bg-gray-900 p-4 rounded-xl border border-gray-700">
+            <div>
+                <p class="font-bold">الأوقية العالمية (Gold)</p>
+                <p class="text-xs text-gray-500">بورصة عالمية</p>
+            </div>
+            <p class="text-yellow-500 font-mono">$2,340.00</p>
+        </div>
+    </div>
 
-    <script>
-        function sendBuyOrder() {
-            const amount = document.getElementById('amountInput').value;
-            const price = document.getElementById('priceInput').value;
+    <!-- شريط الأمان -->
+    <div class="text-center bg-gray-800 p-3 rounded-xl border border-gray-700 text-gray-400 text-sm">
+        🛡️ حسابك محمي بنظام تشفير SAFU الشامل
+    </div>
 
-            fetch('/place_buy_order', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ amount: amount, price: price, type: 'BUY' })
-            })
-            .then(res => res.json())
-            .then(data => {
-                alert(data.message);
-                fetchOrderBook();
-            });
-        }
-
-        function fetchOrderBook() {
-            fetch('/book')
-            .then(res => res.json())
-            .then(data => {
-                const body = document.getElementById('orderBody');
-                body.innerHTML = '';
-                data.forEach(o => {
-                    body.innerHTML += `<tr><td>${o.type}</td><td>${o.amount}</td><td>${o.price}</td></tr>`;
-                });
-            });
-        }
-
-        setInterval(fetchOrderBook, 3000);
-        fetchOrderBook();
-    </script>
 </body>
 </html>

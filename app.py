@@ -1,84 +1,69 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
-from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'ultra-exchange-core'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///exchange.db'
+
+# مهم جدًا لـ Render
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
 # =========================
-# 👤 USERS
+# 👤 USER MODEL
 # =========================
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True)
-    password = db.Column(db.String(255))
     balance = db.Column(db.Float, default=1000.0)
 
 # =========================
-# 📊 ORDERS (REAL ORDER BOOK)
+# 📊 ORDER MODEL
 # =========================
 class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user = db.Column(db.String(80))
-    side = db.Column(db.String(4))  # buy / sell
-    price = db.Column(db.Float)
+    side = db.Column(db.String(10))  # buy / sell
     amount = db.Column(db.Float)
-    filled = db.Column(db.Float, default=0.0)
+    price = db.Column(db.Float)
     status = db.Column(db.String(20), default="open")
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    created = db.Column(db.DateTime, default=datetime.utcnow)
 
 # =========================
-# 💰 TRADES (EXECUTIONS)
+# ⚡ MATCH ENGINE
 # =========================
-class Trade(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    buy_user = db.Column(db.String(80))
-    sell_user = db.Column(db.String(80))
-    price = db.Column(db.Float)
-    amount = db.Column(db.Float)
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+def match_orders():
+    buys = Order.query.filter_by(side="buy", status="open").all()
+    sells = Order.query.filter_by(side="sell", status="open").all()
 
-# =========================
-# ⚡ MATCHING ENGINE (REAL CORE)
-# =========================
-def match_engine():
+    for b in buys:
+        for s in sells:
 
-    buys = Order.query.filter_by(side="buy", status="open").order_by(Order.price.desc(), Order.timestamp.asc()).all()
-    sells = Order.query.filter_by(side="sell", status="open").order_by(Order.price.asc(), Order.timestamp.asc()).all()
+            if b.price >= s.price and b.status == "open" and s.status == "open":
 
-    for buy in buys:
-        for sell in sells:
+                trade = min(b.amount, s.amount)
 
-            if buy.price >= sell.price and buy.status == "open" and sell.status == "open":
+                b.amount -= trade
+                s.amount -= trade
 
-                trade_amount = min(buy.amount - buy.filled, sell.amount - sell.filled)
-                trade_price = sell.price
-
-                # update fills
-                buy.filled += trade_amount
-                sell.filled += trade_amount
-
-                # mark status
-                if buy.filled >= buy.amount:
-                    buy.status = "filled"
-                if sell.filled >= sell.amount:
-                    sell.status = "filled"
-
-                # save trade
-                trade = Trade(
-                    buy_user=buy.user,
-                    sell_user=sell.user,
-                    price=trade_price,
-                    amount=trade_amount
-                )
-                db.session.add(trade)
+                if b.amount <= 0:
+                    b.status = "closed"
+                if s.amount <= 0:
+                    s.status = "closed"
 
                 db.session.commit()
+
+# =========================
+# 🏠 HOME (NO HTML FILES)
+# =========================
+@app.route('/')
+def home():
+    return jsonify({
+        "status": "running",
+        "message": "PRO EXCHANGE API",
+        "routes": ["/register", "/order", "/book"]
+    })
 
 # =========================
 # 🆕 REGISTER
@@ -88,10 +73,7 @@ def register():
 
     data = request.json
 
-    user = User(
-        username=data["username"],
-        password=generate_password_hash(data["password"])
-    )
+    user = User(username=data["username"])
 
     db.session.add(user)
     db.session.commit()
@@ -99,39 +81,24 @@ def register():
     return jsonify({"status": "user created"})
 
 # =========================
-# 🔐 LOGIN
-# =========================
-@app.route('/login', methods=['POST'])
-def login():
-
-    data = request.json
-
-    user = User.query.filter_by(username=data["username"]).first()
-
-    if user and check_password_hash(user.password, data["password"]):
-        return jsonify({"status": "ok"})
-
-    return jsonify({"status": "fail"})
-
-# =========================
-# 📥 PLACE ORDER (REAL API)
+# 📥 PLACE ORDER
 # =========================
 @app.route('/order', methods=['POST'])
-def place_order():
+def order():
 
     data = request.json
 
-    order = Order(
+    o = Order(
         user=data["user"],
         side=data["side"],
-        price=float(data["price"]),
-        amount=float(data["amount"])
+        amount=float(data["amount"]),
+        price=float(data["price"])
     )
 
-    db.session.add(order)
+    db.session.add(o)
     db.session.commit()
 
-    match_engine()
+    match_orders()
 
     return jsonify({"status": "order placed"})
 
@@ -145,40 +112,18 @@ def book():
     sells = Order.query.filter_by(side="sell", status="open").all()
 
     return jsonify({
-        "buy": [
-            {"user": o.user, "price": o.price, "amount": o.amount - o.filled}
-            for o in buys
-        ],
-        "sell": [
-            {"user": o.user, "price": o.price, "amount": o.amount - o.filled}
-            for o in sells
-        ]
+        "buy": [{"price": o.price, "amount": o.amount} for o in buys],
+        "sell": [{"price": o.price, "amount": o.amount} for o in sells]
     })
 
 # =========================
-# 💰 USERS WALLET VIEW
-# =========================
-@app.route('/wallet/<username>')
-def wallet(username):
-
-    user = User.query.filter_by(username=username).first()
-
-    if not user:
-        return jsonify({"error": "not found"})
-
-    return jsonify({
-        "user": user.username,
-        "balance": user.balance
-    })
-
-# =========================
-# 🔥 INIT DB
+# 🔥 INIT DB (SAFE FOR RENDER)
 # =========================
 with app.app_context():
     db.create_all()
 
 # =========================
-# ▶ RUN
+# ▶ RUN (IMPORTANT FOR RENDER)
 # =========================
-if __name__ == '__main__':
-    app.run(debug=True)
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=10000)

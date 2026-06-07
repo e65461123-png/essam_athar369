@@ -1,17 +1,10 @@
 from flask import Flask
+from blueprints.routes import main_bp  # استيراد الـ Blueprint
 
-# تهيئة التطبيق
 app = Flask(__name__)
 
-# استيراد وتجهيز المجلدات الفرعية (Blueprints)
-# سنقوم بربطها لاحقاً بمجرد إنشاء الملفات داخل مجلد blueprints
-# from blueprints.auth import auth_bp
-# app.register_blueprint(auth_bp)
-
-@app.route('/')
-def index():
-    return "تم التوصيل بنجاح: المشروع يعمل الآن!"
+# تسجيل الـ Blueprint
+app.register_blueprint(main_bp)
 
 if __name__ == '__main__':
     app.run(debug=True)
-

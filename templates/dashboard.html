@@ -40,12 +40,29 @@
             fetch('/place_buy_order', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ amount: amount, price: price })
+                body: JSON.stringify({ amount: amount, price: price, type: 'BUY' })
             })
             .then(res => res.json())
-            .then(data => alert(data.message))
-            .catch(err => console.error(err));
+            .then(data => {
+                alert(data.message);
+                fetchOrderBook();
+            });
         }
+
+        function fetchOrderBook() {
+            fetch('/book')
+            .then(res => res.json())
+            .then(data => {
+                const body = document.getElementById('orderBody');
+                body.innerHTML = '';
+                data.forEach(o => {
+                    body.innerHTML += `<tr><td>${o.type}</td><td>${o.amount}</td><td>${o.price}</td></tr>`;
+                });
+            });
+        }
+
+        setInterval(fetchOrderBook, 3000);
+        fetchOrderBook();
     </script>
 </body>
 </html>

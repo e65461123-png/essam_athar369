@@ -74,5 +74,23 @@
         AETHER 369 Brokerage &copy; 2026 | منصة استثمارية مشفرة.
     </footer>
 
+    function sendBuyOrder() {
+    const amount = document.getElementById('amountInput').value;
+    const price = document.getElementById('priceInput').value;
+
+    fetch('/place_buy_order', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ amount: amount, price: price }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        alert(data.message);
+    })
+    .catch(error => console.error('Error:', error));
+}
+
 </body>
 </html>

@@ -1,64 +1,28 @@
-from flask import Flask, request, jsonify
-
-app = Flask(__name__)
-
-# =====================
-# HOME PAGE
-# =====================
-@app.route("/")
-def home():
-    return """
-    <h1>📈 Exchange System</h1>
-    <p>System Running 🚀</p>
-
-    <h3>API Endpoints:</h3>
-    <ul>
-        <li>POST /register</li>
-        <li>POST /login</li>
-    </ul>
-    """
-
-# =====================
-# SIMPLE STORAGE
-# =====================
-users = {}
-
-# =====================
-# REGISTER
-# =====================
-@app.route("/register", methods=["POST"])
-def register():
+@app.route("/order", methods=["POST"])
+def order():
 
     data = request.json
 
-    username = data.get("username")
-    password = data.get("password")
+    user = data["user"]
+    side = data["side"]   # buy / sell
+    amount = float(data["amount"])
+    price = float(data["price"])
 
-    if username in users:
-        return jsonify({"status": "error", "msg": "user exists"})
+    # هنا بنسجل الأمر (مؤقتًا في memory)
+    order = {
+        "user": user,
+        "side": side,
+        "amount": amount,
+        "price": price
+    }
 
-    users[username] = password
+    if "orders" not in globals():
+        global orders
+        orders = []
 
-    return jsonify({"status": "success", "msg": "registered"})
+    orders.append(order)
 
-# =====================
-# LOGIN
-# =====================
-@app.route("/login", methods=["POST"])
-def login():
-
-    data = request.json
-
-    username = data.get("username")
-    password = data.get("password")
-
-    if users.get(username) == password:
-        return jsonify({"status": "success", "msg": "logged in"})
-
-    return jsonify({"status": "error", "msg": "invalid credentials"})
-
-# =====================
-# RUN
-# =====================
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=10000)
+    return jsonify({
+        "status": "order placed",
+        "order": order
+    })

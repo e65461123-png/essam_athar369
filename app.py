@@ -1,15 +1,15 @@
 from flask import Flask, request, redirect, session, render_template_string
 import sqlite3
-import bcrypt
+from passlib.hash import pbkdf2_sha256
 from datetime import datetime
 
 app = Flask(__name__)
-app.secret_key = "super_secret_key"
+app.secret_key = "super_secret_key_change_me"
 
 ADMIN_CODE = "369369"
 
 # =====================
-# DB INIT
+# DATABASE INIT
 # =====================
 def init_db():
     conn = sqlite3.connect("data.db")
@@ -58,35 +58,37 @@ def home():
     return redirect("/login")
 
 # =====================
-# REGISTER (HASH PASSWORD)
+# REGISTER
 # =====================
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
         username = request.form["username"]
-        password = request.form["password"].encode()
+        password = request.form["password"]
 
-        hashed = bcrypt.hashpw(password, bcrypt.gensalt())
+        hashed = pbkdf2_sha256.hash(password)
 
         conn = sqlite3.connect("data.db")
         c = conn.cursor()
+
         try:
             c.execute("INSERT INTO users (username, password) VALUES (?, ?)",
                       (username, hashed))
             conn.commit()
         except:
             return "❌ المستخدم موجود بالفعل"
-        conn.close()
 
+        conn.close()
         return redirect("/login")
 
     return render_template_string("""
-    <h2>Register</h2>
+    <h2>📝 Register</h2>
     <form method="post">
-        <input name="username" placeholder="Username"><br>
-        <input name="password" type="password" placeholder="Password"><br>
+        <input name="username" placeholder="Username"><br><br>
+        <input name="password" type="password" placeholder="Password"><br><br>
         <button>Register</button>
     </form>
+    <a href="/login">Login</a>
     """)
 
 # =====================
@@ -96,7 +98,7 @@ def register():
 def login():
     if request.method == "POST":
         username = request.form["username"]
-        password = request.form["password"].encode()
+        password = request.form["password"]
 
         conn = sqlite3.connect("data.db")
         c = conn.cursor()
@@ -104,19 +106,20 @@ def login():
         data = c.fetchone()
         conn.close()
 
-        if data and bcrypt.checkpw(password, data[0]):
+        if data and pbkdf2_sha256.verify(password, data[0]):
             session["user"] = username
             return redirect("/dashboard")
 
         return "❌ بيانات غير صحيحة"
 
     return """
-    <h2>Login</h2>
+    <h2>🔐 Login</h2>
     <form method="post">
-        <input name="username"><br>
-        <input name="password" type="password"><br>
+        <input name="username"><br><br>
+        <input name="password" type="password"><br><br>
         <button>Login</button>
     </form>
+    <a href="/register">Register</a>
     """
 
 # =====================
@@ -131,38 +134,48 @@ def dashboard():
 
     conn = sqlite3.connect("data.db")
     c = conn.cursor()
+
     c.execute("SELECT balance FROM users WHERE username=?", (user,))
     balance = c.fetchone()[0]
 
-    c.execute("SELECT type, amount, time FROM transactions WHERE username=? ORDER BY id DESC",
-              (user,))
+    c.execute("""
+        SELECT type, amount, time
+        FROM transactions
+        WHERE username=?
+        ORDER BY id DESC
+    """, (user,))
     logs = c.fetchall()
 
     conn.close()
 
     return render_template_string("""
-    <h1>👤 {{user}}</h1>
-    <h3>💰 Balance: {{balance}}$</h3>
+    <h1>👤 Welcome {{user}}</h1>
+    <h3>💰 Balance: {{balance}} $</h3>
 
-    <h3>💳 Deposit</h3>
+    <hr>
+
+    <h3>➕ Deposit</h3>
     <form method="post" action="/deposit">
-        <input name="amount" type="number">
+        <input name="amount" type="number" step="0.01">
         <button>Deposit</button>
     </form>
 
-    <h3>💸 Withdraw</h3>
+    <h3>➖ Withdraw</h3>
     <form method="post" action="/withdraw">
-        <input name="amount" type="number">
+        <input name="amount" type="number" step="0.01">
         <button>Withdraw</button>
     </form>
+
+    <hr>
 
     <h3>📜 Transactions</h3>
     {% for t in logs %}
         <p>{{t[0]}} | {{t[1]}}$ | {{t[2]}}</p>
     {% endfor %}
 
-    <br>
-    <a href="/admin">Admin</a> |
+    <hr>
+
+    <a href="/admin">🛠 Admin</a> |
     <a href="/logout">Logout</a>
     """, user=user, balance=balance, logs=logs)
 
@@ -171,11 +184,15 @@ def dashboard():
 # =====================
 @app.route("/deposit", methods=["POST"])
 def deposit():
+    if "user" not in session:
+        return redirect("/login")
+
     user = session["user"]
     amount = float(request.form["amount"])
 
     conn = sqlite3.connect("data.db")
     c = conn.cursor()
+
     c.execute("UPDATE users SET balance = balance + ? WHERE username=?",
               (amount, user))
     conn.commit()
@@ -190,6 +207,9 @@ def deposit():
 # =====================
 @app.route("/withdraw", methods=["POST"])
 def withdraw():
+    if "user" not in session:
+        return redirect("/login")
+
     user = session["user"]
     amount = float(request.form["amount"])
 
@@ -204,6 +224,7 @@ def withdraw():
 
     c.execute("UPDATE users SET balance = balance - ? WHERE username=?",
               (amount, user))
+
     conn.commit()
     conn.close()
 
@@ -212,18 +233,20 @@ def withdraw():
     return redirect("/dashboard")
 
 # =====================
-# ADMIN
+# ADMIN PANEL
 # =====================
 @app.route("/admin", methods=["GET", "POST"])
 def admin():
     if request.method == "POST":
         if request.form["code"] != ADMIN_CODE:
-            return "❌ Wrong code"
+            return "❌ Wrong admin code"
 
         conn = sqlite3.connect("data.db")
         c = conn.cursor()
+
         c.execute("SELECT username, balance FROM users")
         users = c.fetchall()
+
         conn.close()
 
         return render_template_string("""
@@ -235,12 +258,15 @@ def admin():
         """, users=users)
 
     return """
+    <h2>Admin Login</h2>
     <form method="post">
         <input name="code" placeholder="Admin Code">
         <button>Enter</button>
     </form>
     """
 
+# =====================
+# LOGOUT
 # =====================
 @app.route("/logout")
 def logout():

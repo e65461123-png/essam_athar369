@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AETHER 369 | لوحة التحكم</title>
-    <!-- استدعاء Tailwind CSS للتصميم -->
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-900 text-white min-h-screen p-4">
@@ -25,19 +24,21 @@
     <!-- أسعار الأسواق الحية -->
     <div class="bg-gray-800 p-6 rounded-2xl mb-6 shadow-lg">
         <h3 class="text-gray-400 mb-4">أسعار الأسواق الحية</h3>
+        
         <div class="flex justify-between items-center bg-gray-900 p-4 rounded-xl mb-3 border border-gray-700">
             <div>
                 <p class="font-bold">البيتكوين (BTC)</p>
                 <p class="text-xs text-green-500">مباشر من بينانس</p>
             </div>
-            <p class="text-yellow-500 font-mono">$68,230.00</p>
+            <p id="btc-price" class="text-yellow-500 font-mono">$68,230.00</p>
         </div>
+
         <div class="flex justify-between items-center bg-gray-900 p-4 rounded-xl border border-gray-700">
             <div>
                 <p class="font-bold">الأوقية العالمية (Gold)</p>
                 <p class="text-xs text-gray-500">بورصة عالمية</p>
             </div>
-            <p class="text-yellow-500 font-mono">$2,340.00</p>
+            <p id="gold-price" class="text-yellow-500 font-mono">$2,340.00</p>
         </div>
     </div>
 
@@ -45,6 +46,21 @@
     <div class="text-center bg-gray-800 p-3 rounded-xl border border-gray-700 text-gray-400 text-sm">
         🛡️ حسابك محمي بنظام تشفير SAFU الشامل
     </div>
+
+    <!-- كود التحديث التلقائي -->
+    <script>
+        function updatePrices() {
+            fetch('/api/prices')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('btc-price').innerText = "$" + data.btc;
+                    document.getElementById('gold-price').innerText = "$" + data.gold;
+                })
+                .catch(error => console.error('خطأ في التحديث:', error));
+        }
+        // تحديث كل 3 ثواني
+        setInterval(updatePrices, 3000);
+    </script>
 
 </body>
 </html>

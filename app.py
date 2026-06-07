@@ -1,58 +1,167 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, redirect, session, render_template_string
+import sqlite3
 
 app = Flask(__name__)
+app.secret_key = "secret_key_123"
 
-# بيانات مؤقتة
-users = {}
-orders = []
+ADMIN_CODE = "369369"
 
+# =====================
+# DATABASE
+# =====================
+def init_db():
+    conn = sqlite3.connect("data.db")
+    c = conn.cursor()
+    c.execute("""
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE,
+            password TEXT,
+            balance REAL DEFAULT 100.0
+        )
+    """)
+    conn.commit()
+    conn.close()
+
+init_db()
+
+# =====================
+# HOME
+# =====================
 @app.route("/")
 def home():
-    return """
-    <!DOCTYPE html>
-    <html>
-    <head><title>EXCHANGE LIVE</title></head>
-    <body style="background:#0f172a; color:white; font-family:Arial; text-align:center; padding-top:40px;">
-        <div style="background:#1e293b; width:420px; margin:auto; padding:20px; border-radius:12px;">
-            <h1>📈 EXCHANGE LIVE</h1>
-            <p>System Running 🚀</p>
-            <button onclick="location.href='/dashboard'" style="padding:10px; width:80%; cursor:pointer;">📊 View Orders</button>
-        </div>
-    </body>
-    </html>
-    """
+    if "user" in session:
+        return redirect("/dashboard")
+    return redirect("/login")
 
-# مسار عرض صفحة dashboard.html
+# =====================
+# REGISTER
+# =====================
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
+
+        conn = sqlite3.connect("data.db")
+        c = conn.cursor()
+        try:
+            c.execute("INSERT INTO users (username, password) VALUES (?, ?)",
+                      (username, password))
+            conn.commit()
+        except:
+            return "❌ Username already exists"
+        conn.close()
+
+        return redirect("/login")
+
+    return render_template_string("""
+    <h2>Register</h2>
+    <form method="post">
+        <input name="username" placeholder="Username"><br>
+        <input name="password" type="password" placeholder="Password"><br>
+        <button type="submit">Register</button>
+    </form>
+    <a href="/login">Login</a>
+    """)
+
+# =====================
+# LOGIN
+# =====================
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
+
+        conn = sqlite3.connect("data.db")
+        c = conn.cursor()
+        c.execute("SELECT * FROM users WHERE username=? AND password=?",
+                  (username, password))
+        user = c.fetchone()
+        conn.close()
+
+        if user:
+            session["user"] = username
+            return redirect("/dashboard")
+        return "❌ Invalid login"
+
+    return render_template_string("""
+    <h2>Login</h2>
+    <form method="post">
+        <input name="username" placeholder="Username"><br>
+        <input name="password" type="password" placeholder="Password"><br>
+        <button type="submit">Login</button>
+    </form>
+    <a href="/register">Register</a>
+    """)
+
+# =====================
+# DASHBOARD
+# =====================
 @app.route("/dashboard")
 def dashboard():
-    return render_template("dashboard.html")
+    if "user" not in session:
+        return redirect("/login")
 
-@app.route("/register", methods=["POST"])
-def register():
-    data = request.get_json()
-    username = data.get("username")
-    password = data.get("password")
-    if username in users: return jsonify({"status":"error","msg":"user exists"})
-    users[username] = password
-    return jsonify({"status":"success","msg":"registered"})
+    username = session["user"]
 
-@app.route("/login", methods=["POST"])
-def login():
-    data = request.get_json()
-    username = data.get("username")
-    password = data.get("password")
-    if users.get(username) == password: return jsonify({"status":"success","msg":"logged in"})
-    return jsonify({"status":"error","msg":"invalid credentials"})
+    conn = sqlite3.connect("data.db")
+    c = conn.cursor()
+    c.execute("SELECT balance FROM users WHERE username=?", (username,))
+    balance = c.fetchone()[0]
+    conn.close()
 
-@app.route("/order", methods=["POST"])
-def order():
-    data = request.get_json()
-    orders.append({"user": data.get("user"), "type": data.get("type"), "amount": data.get("amount"), "price": data.get("price")})
-    return jsonify({"status":"success","msg":"order placed"})
+    return render_template_string("""
+    <h1>👋 Welcome {{user}}</h1>
+    <h3>Balance: {{balance}} $</h3>
 
-@app.route("/book")
-def book():
-    return jsonify(orders)
+    <a href="/admin">Admin Panel</a><br>
+    <a href="/logout">Logout</a>
+    """, user=username, balance=balance)
 
+# =====================
+# ADMIN PANEL
+# =====================
+@app.route("/admin", methods=["GET", "POST"])
+def admin():
+    if request.method == "POST":
+        code = request.form["code"]
+        if code == ADMIN_CODE:
+            conn = sqlite3.connect("data.db")
+            c = conn.cursor()
+            c.execute("SELECT username, balance FROM users")
+            users = c.fetchall()
+            conn.close()
+
+            return render_template_string("""
+            <h2>🛠 Admin Panel</h2>
+            {% for u in users %}
+                <p>{{u[0]}} - {{u[1]}}$</p>
+            {% endfor %}
+            <a href="/dashboard">Back</a>
+            """, users=users)
+
+        return "❌ Wrong admin code"
+
+    return """
+    <h2>Admin Login</h2>
+    <form method="post">
+        <input name="code" placeholder="Admin Code">
+        <button type="submit">Enter</button>
+    </form>
+    """
+
+# =====================
+# LOGOUT
+# =====================
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect("/login")
+
+# =====================
+# RUN
+# =====================
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=10000)
+    app.run(debug=True)

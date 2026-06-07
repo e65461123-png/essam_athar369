@@ -1,5 +1,5 @@
-from flask import Blueprint, render_template, request, session
-from app import db, User
+from flask import Blueprint, render_template, request, session, redirect, url_for
+from app import db, User, Wallet
 from werkzeug.security import generate_password_hash, check_password_hash
 
 main_bp = Blueprint('main', __name__)
@@ -26,6 +26,14 @@ def login():
         user = User.query.filter_by(username=username).first()
         if user and check_password_hash(user.password_hash, password):
             session['user_id'] = user.id
-            return "تم تسجيل الدخول بنجاح!"
+            return redirect(url_for('main.dashboard'))
         return "اسم المستخدم أو كلمة المرور غير صحيحة."
     return render_template('login.html')
+
+@main_bp.route('/dashboard')
+def dashboard():
+    if 'user_id' not in session:
+        return redirect(url_for('main.login'))
+    user = User.query.get(session['user_id'])
+    wallet = Wallet.query.get(session['user_id'])
+    return render_template('dashboard.html', user=user, wallet=wallet)

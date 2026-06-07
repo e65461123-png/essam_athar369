@@ -1,1 +1,29 @@
 
+<!-- قسم عرض المستخدمين -->
+<div class="admin-panel">
+    <h1>لوحة تحكم AETHER 369</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>المستخدم</th>
+                <th>الرصيد المتاح</th>
+                <th>الإجراء</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td>{{ user.username }}</td>
+                <td>{{ user.balance }}</td>
+                <td>
+                    <form action="/admin/update_balance" method="POST">
+                        <input type="hidden" name="user_id" value="{{ user.id }}">
+                        <input type="number" name="amount" placeholder="تعديل الرصيد">
+                        <button type="submit">تحديث</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

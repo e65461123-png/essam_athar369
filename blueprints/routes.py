@@ -37,3 +37,7 @@ def dashboard():
     user = User.query.get(session['user_id'])
     wallet = Wallet.query.get(session['user_id'])
     return render_template('dashboard.html', user=user, wallet=wallet)
+@main_bp.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('main.login'))

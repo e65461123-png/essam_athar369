@@ -2,17 +2,29 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>لوحة التحكم</title>
+    <title>لوحة التحكم | AETHER 369</title>
 </head>
 <body>
     <h1>مرحباً بك، {{ user.username }}</h1>
     <h2>رصيد محفظتك: {{ wallet.balance_usd }} دولار</h2>
+
     <hr>
-    <h3>إيداع رصيد</h3>
+    <h3>إيداع رصيد (USD)</h3>
     <form action="/deposit" method="POST">
         <input type="number" step="0.01" name="amount" placeholder="أدخل المبلغ" required>
         <button type="submit">تأكيد الإيداع</button>
     </form>
+
+    <hr>
+    <h3>سجل العمليات</h3>
+    <ul>
+        {% for trans in transactions %}
+            <li>إيداع: {{ trans.amount }} دولار - التاريخ: {{ trans.timestamp }}</li>
+        {% else %}
+            <li>لا توجد عمليات إيداع بعد.</li>
+        {% endfor %}
+    </ul>
+
     <br>
     <a href="/logout">تسجيل الخروج</a>
 </body>

@@ -8,6 +8,7 @@ app = Flask(__name__)
 # DATABASE SAFE FIX
 # =====================
 db_url = os.environ.get("DATABASE_URL")
+print(f"DEBUG: DATABASE_URL is {os.environ.get('DATABASE_URL')}")
 
 # لو مفيش DB أو فيه Supabase مشاكل → استخدم SQLite
 if not db_url or "supabase" in db_url:

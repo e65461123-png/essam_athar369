@@ -3,9 +3,10 @@ from flask import Blueprint, render_template, request, redirect, url_for, sessio
 # تعريف الـ Blueprint
 main_bp = Blueprint('main', __name__)
 
-# استيراد محلي لتجنب مشاكل الـ Import
+# تعديل جوهري: الاستيراد المباشر من المجلد الرئيسي
+# تأكد أن ملف models.py موجود في المجلد الرئيسي للمشروع
 def get_user_model():
-    from models.models import User, Wallet
+    from models import User, Wallet 
     return User, Wallet
 
 @main_bp.route('/')
@@ -24,10 +25,10 @@ def dashboard():
 @main_bp.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        # أضف هنا منطق التسجيل الخاص بك
+        # منطق التسجيل
         return redirect(url_for('main.dashboard'))
     return render_template('register.html')
 
 @main_bp.route('/login')
 def login():
-    return "صفحة تسجيل الدخول - قم ببرمجتها هنا"
+    return "صفحة تسجيل الدخول"

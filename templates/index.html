@@ -2,80 +2,64 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>AETHER 369 | منصة التداول</title>
+    <title>AETHER 369 | منصة التداول الشاملة</title>
     <style>
         body { background: #0a0e14; color: #fff; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 10px; }
-        
-        .dashboard-grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
-            gap: 15px; 
-        }
-        
-        header { grid-column: 1 / -1; background: #16213e; padding: 20px; border-radius: 15px; text-align: center; font-size: 1.8em; color: #4ecca3; }
-        
-        section { background: #1b1b2f; padding: 20px; border-radius: 15px; border: 1px solid #333; min-height: 150px; }
-        
-        /* الصندوق المخصص للرسم البياني */
-        .trading-engine { grid-column: 1 / -1; height: 450px; }
-        
-        h3 { margin-top: 0; color: #e94560; border-bottom: 1px solid #333; padding-bottom: 10px; }
-        .price-box { font-size: 1.5em; font-weight: bold; margin-top: 15px; }
-        
-        .market-ticker { grid-column: 1 / -1; background: #0f3460; padding: 10px; overflow: hidden; white-space: nowrap; border-radius: 10px; }
-        .ticker-text { display: inline-block; animation: scroll 15s linear infinite; }
-        @keyframes scroll { from { transform: translateX(100%); } to { transform: translateX(-100%); } }
+        .grid-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .full-width { grid-column: span 2; background: #16213e; padding: 15px; border-radius: 10px; }
+        .card { background: #1b1b2f; padding: 15px; border-radius: 10px; border: 1px solid #333; }
+        h3 { color: #e94560; margin-top: 0; font-size: 0.9em; }
+        .price { font-size: 1.2em; color: #4ecca3; font-weight: bold; }
+        .ticker { background: #0f3460; padding: 10px; border-radius: 5px; overflow: hidden; white-space: nowrap; }
     </style>
 </head>
 <body>
 
-<div class="dashboard-grid">
-    <header>AETHER 369</header>
-    
-    <section><h3>رصيد المحفظة</h3><div class="price-box">$1,250.00</div></section>
-    <section><h3>أسعار الأسواق الحية</h3><div class="price-box">بيتكوين (BTC): <span id="btc-price">جاري التحميل...</span> $</div></section>
-    
-    <!-- محرك التداول الاحترافي -->
-    <section class="trading-engine">
-        <h3>محرك التداول الاحترافي</h3>
-        <div class="tradingview-widget-container" style="height:90%;width:100%;">
-            <div id="tradingview_chart" style="height:100%;width:100%;"></div>
-            <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
-            <script type="text/javascript">
-                new TradingView.widget({
-                    "autosize": true,
-                    "symbol": "BINANCE:BTCUSDT",
-                    "interval": "D",
-                    "timezone": "Etc/UTC",
-                    "theme": "dark",
-                    "style": "1",
-                    "locale": "ar",
-                    "toolbar_bg": "#16213e",
-                    "enable_publishing": false,
-                    "allow_symbol_change": true,
-                    "container_id": "tradingview_chart"
-                });
-            </script>
-        </div>
+<div class="grid-container">
+    <!-- الرصيد -->
+    <header class="full-width">
+        <h3>رصيد محفظتك</h3>
+        <div class="price">$1,250.00</div>
+    </header>
+
+    <!-- الأسواق -->
+    <section class="card">
+        <h3>أسعار الأسواق</h3>
+        <div class="price">BTC: <span id="btc-price">...</span> $</div>
     </section>
-    
-    <footer class="market-ticker">
-        <div class="ticker-text" id="ticker">
-            BTC: جاري التحديث | ETH: جاري التحديث | S&P 500: متصل | السوق في حالة نشاط...
-        </div>
+
+    <!-- الأمن -->
+    <section class="card">
+        <h3>إدارة الأمن</h3>
+        <div style="color: #4ecca3;">مستوى الحماية: 33</div>
+    </section>
+
+    <!-- محرك التداول (TradingView) -->
+    <section class="full-width" style="height: 300px;">
+        <h3>محرك التداول الاحترافي</h3>
+        <div id="tv_chart" style="height: 250px;"></div>
+    </section>
+
+    <!-- شريط الأخبار -->
+    <footer class="full-width ticker">
+        تحديثات السوق: الذهب (2,345) | الفضة (15.20) | EGP Stabilizing...
     </footer>
 </div>
 
+<script src="https://s3.tradingview.com/tv.js"></script>
 <script>
-    function updatePrice() {
+    // تحديث السعر
+    function updateData() {
         fetch('https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT')
             .then(res => res.json())
-            .then(data => {
-                document.getElementById('btc-price').innerText = parseFloat(data.price).toLocaleString();
-            });
+            .then(data => { document.getElementById('btc-price').innerText = parseFloat(data.price).toLocaleString(); });
     }
-    setInterval(updatePrice, 3000);
-    updatePrice();
+    
+    // تشغيل الرسم البياني
+    new TradingView.widget({"container_id": "tv_chart", "symbol": "BINANCE:BTCUSDT", "theme": "dark", "autosize": true});
+    
+    setInterval(updateData, 3000);
+    updateData();
 </script>
 
 </body>

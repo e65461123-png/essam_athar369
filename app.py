@@ -1,44 +1,47 @@
-@app.route("/")
-def home():
-    return """
-    <html dir="rtl">
-    <head>
-    <title>AETHER 369</title>
-    <style>
-    body{
-        background:#0f172a;
-        color:white;
-        font-family:Tahoma;
-        text-align:center;
-        padding-top:50px;
-    }
-    .card{
-        width:350px;
-        margin:auto;
-        background:#1e293b;
-        padding:20px;
-        border-radius:15px;
-    }
-    a{
-        display:block;
-        margin:10px;
-        padding:10px;
-        background:#2563eb;
-        color:white;
-        text-decoration:none;
-        border-radius:10px;
-    }
-    </style>
-    </head>
-    <body>
-    <div class="card">
-    <h1>AETHER 369</h1>
-    <h3>القائد: عصام الكومي</h3>
-    <p>رصيد المحفظة: USD 369.00</p>
+from flask import Flask, render_template_string, request, redirect, url_for
 
-    <a href="/login">تسجيل الدخول</a>
-    <a href="/register">إنشاء حساب</a>
+app = Flask(__name__)
+
+# كود HTML للصفحة الرئيسية
+home_html = """
+<div style="text-align:center; padding-top:50px; font-family:Tahoma; background:#0f172a; color:white; min-height:100vh;">
+    <h1>AETHER 369</h1>
+    <div class="card" style="width:300px; margin:auto; background:#1e293b; padding:20px; border-radius:15px;">
+        <h3>الاسم: عصام الكومي</h3>
+        <p>رصيد USD 369.00</p>
+        <a href="/login" style="color:white; display:block; margin:10px;">تسجيل الدخول</a>
+        <a href="/register" style="color:white; display:block; margin:10px;">إنشاء حساب جديد</a>
     </div>
-    </body>
-    </html>
-    """
+</div>
+"""
+
+# كود HTML لصفحة تسجيل الدخول
+login_html = """
+<div style="text-align:center; padding-top:50px; font-family:Tahoma; background:#0f172a; color:white; min-height:100vh;">
+    <h2>تسجيل الدخول</h2>
+    <form method="POST" action="/login">
+        <input type="text" name="username" placeholder="اسم المستخدم" required style="padding:10px; margin:5px;"><br>
+        <input type="password" name="password" placeholder="كلمة المرور" required style="padding:10px; margin:5px;"><br>
+        <button type="submit" style="padding:10px 20px; margin:10px; background:#2561eb; color:white; border:none; border-radius:5px;">دخول</button>
+    </form>
+    <a href="/" style="color:white;">العودة للرئيسية</a>
+</div>
+"""
+
+@app.route('/')
+def home():
+    return render_template_string(home_html)
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        # هنا يمكنك إضافة منطق التحقق من البيانات لاحقاً
+        return "تم إرسال بيانات الدخول بنجاح!"
+    return render_template_string(login_html)
+
+@app.route('/register')
+def register():
+    return "صفحة التسجيل تحت الإنشاء..."
+
+if __name__ == '__main__':
+    app.run(debug=True)

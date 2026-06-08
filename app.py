@@ -1,46 +1,44 @@
-from flask import Flask, render_template, request, redirect, url_for, session
-from flask_sqlalchemy import SQLAlchemy
+@app.route("/")
+def home():
+    return """
+    <html dir="rtl">
+    <head>
+    <title>AETHER 369</title>
+    <style>
+    body{
+        background:#0f172a;
+        color:white;
+        font-family:Tahoma;
+        text-align:center;
+        padding-top:50px;
+    }
+    .card{
+        width:350px;
+        margin:auto;
+        background:#1e293b;
+        padding:20px;
+        border-radius:15px;
+    }
+    a{
+        display:block;
+        margin:10px;
+        padding:10px;
+        background:#2563eb;
+        color:white;
+        text-decoration:none;
+        border-radius:10px;
+    }
+    </style>
+    </head>
+    <body>
+    <div class="card">
+    <h1>AETHER 369</h1>
+    <h3>القائد: عصام الكومي</h3>
+    <p>رصيد المحفظة: USD 369.00</p>
 
-app = Flask(__name__)
-app.secret_key = 'aether369_secret_key'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///aether360.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-db = SQLAlchemy(app)
-
-# تعريف الموديلات هنا لضمان وجودها
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(50), unique=True, nullable=False)
-    password_hash = db.Column(db.Text, nullable=False)
-
-class Wallet(db.Model):
-    user_id = db.Column(db.Integer, primary_key=True)
-    balance_usd = db.Column(db.Float, default=0.0)
-
-with app.app_context():
-    db.create_all()
-
-# الـ Routes مباشرة هنا لتجنب أي مشاكل استيراد
-@app.route('/')
-def index():
-    return redirect(url_for('dashboard'))
-
-@app.route('/dashboard')
-def dashboard():
-    if 'user_id' not in session:
-        return redirect(url_for('login'))
-    user = User.query.get(session['user_id'])
-    wallet = Wallet.query.get(session['user_id'])
-    return render_template('dashboard.html', user=user, wallet=wallet)
-
-@app.route('/register', methods=['GET', 'POST'])
-def register():
-    return render_template('register.html')
-
-@app.route('/login')
-def login():
-    return "صفحة تسجيل الدخول"
-
-if __name__ == '__main__':
-    app.run()
+    <a href="/login">تسجيل الدخول</a>
+    <a href="/register">إنشاء حساب</a>
+    </div>
+    </body>
+    </html>
+    """

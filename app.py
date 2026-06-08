@@ -1,16 +1,16 @@
-from flask import Flask, render_template_string, request, redirect, url_for
+from flask import Flask, render_template_string, request
 
 app = Flask(__name__)
 
-# --- كود الصفحة الرئيسية ---
+# --- كود الواجهة الرئيسية ---
 home_html = """
 <div style="text-align:center; padding-top:50px; font-family:Tahoma; background:#0f172a; color:white; min-height:100vh;">
     <h1>AETHER 369</h1>
     <div style="width:300px; margin:auto; background:#1e293b; padding:20px; border-radius:15px;">
         <h3>الاسم: عصام الكومي</h3>
         <p>رصيد USD 369.00</p>
-        <a href="/login" style="color:white; display:block; margin:10px;">تسجيل الدخول</a>
-        <a href="/register" style="color:white; display:block; margin:10px;">إنشاء حساب جديد</a>
+        <a href="/login" style="color:white; display:block; margin:10px; text-decoration:none;">تسجيل الدخول</a>
+        <a href="/register" style="color:white; display:block; margin:10px; text-decoration:none;">إنشاء حساب جديد</a>
     </div>
 </div>
 """
@@ -28,8 +28,6 @@ login_html = """
 </div>
 """
 
-# --- المسارات (Routes) ---
-
 @app.route('/')
 def home():
     return render_template_string(home_html)
@@ -37,13 +35,9 @@ def home():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        # المرحلة القادمة: هنا سنربط بقاعدة البيانات
+        # المرحلة القادمة: هنا سنربط بقاعدة البيانات لاحقاً
         return "تم استلام البيانات بنجاح! نحن جاهزون للمرحلة التالية."
     return render_template_string(login_html)
-
-@app.route('/register')
-def register():
-    return "صفحة التسجيل تحت الإنشاء..."
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -5,13 +5,14 @@ app = Flask(__name__)
 
 def get_btc_price():
     try:
-        # جلب السعر من Binance مباشرة
+        # رابط بديل ومباشر
         response = requests.get('https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT', timeout=10)
         data = response.json()
         price = float(data['price'])
-        return f"{price:,.2f}" # تنسيق الرقم ليظهر بشكل جميل
-    except:
-        return "N/A"
+        return f"{price:,.0f}" # يظهر الرقم بدون كسور
+    except Exception as e:
+        print(f"Error: {e}") # هذا سيظهر لك الخطأ الحقيقي في الـ Logs
+        return "سيرفر مؤقت"
 
 @app.route('/')
 def home():

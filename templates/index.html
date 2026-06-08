@@ -4,29 +4,48 @@
     <meta charset="UTF-8">
     <title>AETHER 369 | منصة التداول</title>
     <style>
-        body { background: #0a0e14; color: #fff; font-family: sans-serif; margin: 0; }
-        .dashboard-grid { display: grid; grid-template-columns: 1fr; gap: 10px; padding: 10px; }
-        header, section, footer { background: #16213e; padding: 15px; border-radius: 10px; border: 1px solid #333; }
-        .wallet-balance { font-size: 1.5em; color: #4ecca3; }
-        .price-box { font-size: 1.2em; margin-top: 10px; }
+        body { background: #0a0e14; color: #fff; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 10px; }
+        
+        .dashboard-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+            gap: 15px; 
+        }
+        
+        header { grid-column: 1 / -1; background: #16213e; padding: 20px; border-radius: 15px; text-align: center; font-size: 1.8em; color: #4ecca3; }
+        section { background: #1b1b2f; padding: 20px; border-radius: 15px; border: 1px solid #333; }
+        h3 { margin-top: 0; color: #e94560; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        
+        /* شريط الأسعار السفلي المتحرك */
+        .market-ticker { 
+            grid-column: 1 / -1; 
+            background: #0f3460; 
+            padding: 10px; 
+            overflow: hidden; 
+            white-space: nowrap; 
+            border-radius: 10px;
+        }
+        .ticker-text { display: inline-block; animation: scroll 15s linear infinite; }
+        @keyframes scroll { from { transform: translateX(100%); } to { transform: translateX(-100%); } }
     </style>
 </head>
 <body>
 
 <div class="dashboard-grid">
-    <header class="wallet-balance">رصيد محفظتك: <span id="balance">$1,250.00</span></header>
+    <header>AETHER 369</header>
+    <section><h3>رصيد المحفظة</h3><div class="price-box">$1,250.00</div></section>
+    <section><h3>أسعار الأسواق الحية</h3><div class="price-box">بيتكوين (BTC): <span id="btc-price">جاري التحميل...</span> $</div></section>
+    <section><h3>محرك التداول الاحترافي</h3><div style="height: 100px;">[جاري ربط TradingView]</div></section>
     
-    <section class="live-prices">
-        <h3>أسعار الأسواق الحية</h3>
-        <div class="price-box">بيتكوين (BTC): <span id="btc-price">جاري التحميل...</span> $</div>
-    </section>
-
-    <section class="trading-engine"><h3>محرك التداول الاحترافي</h3></section>
-    <section class="security-vault"><h3>إدارة الأمن والامتثال</h3></section>
-    <footer class="market-ticker">شريط الأسعار السفلي</footer>
+    <footer class="market-ticker">
+        <div class="ticker-text" id="ticker">
+            جاري جلب تحديثات السوق... | BTC: جارٍ التحديث | ETH: جارٍ التحديث | S&P 500: متصل
+        </div>
+    </footer>
 </div>
 
 <script>
+    // جلب سعر البيتكوين
     function updatePrice() {
         fetch('https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT')
             .then(res => res.json())
@@ -34,7 +53,14 @@
                 document.getElementById('btc-price').innerText = parseFloat(data.price).toLocaleString();
             });
     }
+    
+    // محاكاة شريط الأسعار السفلي
+    function updateTicker() {
+        document.getElementById('ticker').innerText = "BTC: 64,101 $ | ETH: 3,450 $ | EGP: 47.50 | الذهب: 2,345 $ | تحديثات حية لحظية...";
+    }
+
     setInterval(updatePrice, 3000);
+    setInterval(updateTicker, 5000);
     updatePrice();
 </script>
 

@@ -6,9 +6,10 @@
     <title>AETHER 369 - لوحة التحكم</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
+<body class="bg-slate-900 text-white">
 
-    <div class="min-h-screen flex bg-slate-900 text-white">
+    <div class="min-h-screen flex">
+      <!-- القائمة الجانبية -->
       <aside class="w-64 bg-slate-800 p-6 hidden md:block">
         <h2 class="text-xl font-bold mb-8">لوحة التحكم</h2>
         <nav class="space-y-4">
@@ -18,10 +19,23 @@
         </nav>
       </aside>
 
+      <!-- المحتوى الرئيسي -->
       <main class="flex-1 p-8">
         <h1 class="text-2xl font-bold mb-6">مرحباً، عصام الكومي</h1>
+        
+        <!-- منطقة البطاقات -->
         <div id="content" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- بطاقة المحفظة -->
+          <div class="bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-lg">
+              <p class="text-gray-400 text-sm mb-1">رصيد محفظتك المتاح</p>
+              <h2 class="text-4xl font-bold text-green-400 mb-6">$1,250.00</h2>
+              
+              <div class="flex gap-4">
+                  <button class="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg w-full">إيداع</button>
+                  <button class="bg-red-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg w-full">سحب</button>
+              </div>
           </div>
+        </div>
       </main>
     </div>
 

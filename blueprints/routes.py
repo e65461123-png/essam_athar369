@@ -30,3 +30,6 @@ def deposit():
         db.session.commit()
         
     return redirect(url_for('main.dashboard'))
+@main_bp.route('/')
+def index():
+    return redirect(url_for('main.dashboard'))

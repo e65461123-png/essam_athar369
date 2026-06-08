@@ -1,16 +1,19 @@
-@app.route("/login", methods=["GET", "POST"])
-def login():
-    if request.method == "POST":
+from flask import Flask, render_template, request, redirect, session
+from flask_sqlalchemy import SQLAlchemy
+from werkzeug.security import generate_password_hash, check_password_hash
+import os
 
-        username = request.form["username"]
-        password = request.form["password"]
+# إنشاء تطبيق Flask
+app = Flask(__name__)
+app.secret_key = os.environ.get("SECRET_KEY", "AETHER369_SECRET_KEY")
 
-        user = User.query.filter_by(username=username).first()
+# إعداد قاعدة البيانات
+db_url = os.environ.get("DATABASE_URL", "sqlite:///aether369.db")
 
-        if user and check_password_hash(user.password, password):
-            session["user"] = user.username
-            return redirect("/dashboard")
+if db_url.startswith("postgres://"):
+    db_url = db_url.replace("postgres://", "postgresql://")
 
-        return "❌ بيانات الدخول غير صحيحة"
+app.config["SQLALCHEMY_DATABASE_URI"] = db_url
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-    return render_template("login.html")
+db = SQLAlchemy(app)

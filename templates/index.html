@@ -1,16 +1,18 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <title>AETHER 369 | المنصة الاحترافية</title>
+    <style>
+        body { background: #0a0e14; color: #fff; font-family: 'Arial', sans-serif; text-align: center; }
+        .hero { padding: 50px; background: linear-gradient(45deg, #1a1a2e, #16213e); border-bottom: 2px solid #e94560; }
+        .ticker { font-size: 2em; color: #4ecca3; margin: 20px; }
+        .poem { font-style: italic; color: #bdc3c7; margin-top: 30px; }
+    </style>
 </head>
 <body>
-    <h1>مرحباً بك في منصة AETHER 369</h1>
-    <p>بوابتك الاستثمارية الذكية</p>
-    
-    <div>
-        <a href="/register">إنشاء حساب جديد</a> | 
-        <a href="/login">تسجيل الدخول</a>
+    <div class="hero">
+        <h1>AETHER 369</h1>
+        <div class="ticker">بيتكوين: {{ btc_price }} $</div>
+        <p class="poem">"عاشر من تعاشر .. لا بد من الفراق"</p> <!-- بيت الشعر -->
     </div>
 </body>
 </html>

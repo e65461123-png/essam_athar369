@@ -6,12 +6,15 @@ import os
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "AETHER369_SECRET_KEY")
 
-# قاعدة بيانات (مهم: على Render قد تحتاج مسار دائم)
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
-    "DATABASE_URL",
-    "sqlite:///aether369.db"
-)
+# =====================
+# DATABASE FIX
+# =====================
+db_url = os.environ.get("DATABASE_URL", "sqlite:///aether369.db")
 
+if db_url.startswith("postgres://"):
+    db_url = db_url.replace("postgres://", "postgresql://")
+
+app.config["SQLALCHEMY_DATABASE_URI"] = db_url
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy(app)
@@ -26,28 +29,42 @@ class User(db.Model):
     balance = db.Column(db.Float, default=1250.0)
 
 # =====================
-# إنشاء الجداول + admin
+# INIT DATABASE + USERS
 # =====================
-with app.app_context():
-    db.create_all()
+def init_db():
+    with app.app_context():
+        db.create_all()
 
-    admin = User.query.filter_by(username="admin").first()
-    if not admin:
-        admin = User(
-            username="admin",
-            password=generate_password_hash("1234"),
-            balance=1250.0
-        )
-        db.session.add(admin)
+        # 👤 USER: Essam369
+        user1 = User.query.filter_by(username="Essam369").first()
+        if not user1:
+            user1 = User(
+                username="Essam369",
+                password=generate_password_hash("369369"),
+                balance=369.0
+            )
+            db.session.add(user1)
+
+        # 👑 ADMIN
+        admin = User.query.filter_by(username="admin").first()
+        if not admin:
+            admin = User(
+                username="admin",
+                password=generate_password_hash("1234"),
+                balance=1250.0
+            )
+            db.session.add(admin)
+
         db.session.commit()
 
-# =====================
-# ROUTES
+init_db()
+
 # =====================
 @app.route("/")
 def home():
     return render_template("home.html")
 
+# =====================
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
@@ -55,7 +72,7 @@ def register():
         password = generate_password_hash(request.form["password"])
 
         if User.query.filter_by(username=username).first():
-            return "المستخدم موجود بالفعل"
+            return "❌ المستخدم موجود بالفعل"
 
         user = User(username=username, password=password)
         db.session.add(user)
@@ -65,6 +82,7 @@ def register():
 
     return render_template("register.html")
 
+# =====================
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -77,10 +95,11 @@ def login():
             session["user"] = user.username
             return redirect("/dashboard")
 
-        return "بيانات الدخول غير صحيحة"
+        return "❌ بيانات الدخول غير صحيحة"
 
     return render_template("login.html")
 
+# =====================
 @app.route("/dashboard")
 def dashboard():
     if "user" not in session:
@@ -88,19 +107,22 @@ def dashboard():
 
     user = User.query.filter_by(username=session["user"]).first()
 
-    return render_template("dashboard.html",
-                           username=user.username,
-                           balance=user.balance)
+    if not user:
+        session.clear()
+        return redirect("/login")
 
+    return render_template(
+        "dashboard.html",
+        username=user.username,
+        balance=user.balance
+    )
+
+# =====================
 @app.route("/logout")
 def logout():
     session.clear()
     return redirect("/")
 
 # =====================
-# RUN
-# =====================
 if __name__ == "__main__":
-    with app.app_context():
-        db.create_all()
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))

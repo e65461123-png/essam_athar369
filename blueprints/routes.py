@@ -1,13 +1,11 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session
+import sys
+import os
 
-# تعريف الـ Blueprint
+# إضافة المجلد الرئيسي للمشروع إلى مسار الاستيراد لضمان رؤية مجلد models
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 main_bp = Blueprint('main', __name__)
-
-# تعديل جوهري: الاستيراد المباشر من المجلد الرئيسي
-# تأكد أن ملف models.py موجود في المجلد الرئيسي للمشروع
-def get_user_model():
-    from models import User, Wallet 
-    return User, Wallet
 
 @main_bp.route('/')
 def index():
@@ -15,7 +13,7 @@ def index():
 
 @main_bp.route('/dashboard')
 def dashboard():
-    User, Wallet = get_user_model()
+    from models.models import User, Wallet
     if 'user_id' not in session:
         return redirect(url_for('main.login'))
     user = User.query.get(session['user_id'])
@@ -25,7 +23,6 @@ def dashboard():
 @main_bp.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        # منطق التسجيل
         return redirect(url_for('main.dashboard'))
     return render_template('register.html')
 

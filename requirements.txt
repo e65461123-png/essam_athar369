@@ -1,6 +1,5 @@
-psycopg2-binary
-Werkzeug
-gunicorn
-Flask-SQLAlchemy
-Flask
-git push
+​Flask
+​Flask-SQLAlchemy
+​gunicorn
+​psycopg2-binary
+​Werkzeug

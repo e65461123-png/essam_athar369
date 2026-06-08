@@ -16,19 +16,13 @@ class User(db.Model):
 with app.app_context():
     db.create_all()
 
-# دالة لجلب سعر البيتكوين
 def get_btc_price():
     try:
-        response = requests.get('https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT')
-        return round(float(response.json()['price']), 2)
+        # استخدام رابط Coingecko لأنه أكثر استقراراً
+        response = requests.get('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd', timeout=5)
+        return response.json()['bitcoin']['usd']
     except:
-        return "غير متاح حالياً"
-
-@app.route('/')
-def home():
-    price = get_btc_price()
-    content = f"<h2>سعر البيتكوين الآن: {price} $</h2><a href='/register'>إنشاء حساب</a> | <a href='/login'>دخول</a>"
-    return render_template_string(layout, content=content)
+        return "جاري الاتصال..."
 
 layout = """
 <div style="text-align:center; padding-top:50px; font-family:Tahoma; background:#0f172a; color:white; min-height:100vh;">
@@ -38,5 +32,33 @@ layout = """
     </div>
 </div>
 """
-# (أضف دالتي register و login السابقتين هنا كما هما)
-# ... (باقي كود register و login هنا)
+
+@app.route('/')
+def home():
+    price = get_btc_price()
+    content = f"<h2>سعر البيتكوين: {price} $</h2><a href='/register' style='color:white;'>إنشاء حساب</a> | <a href='/login' style='color:white;'>دخول</a>"
+    return render_template_string(layout, content=content)
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        hashed_pw = generate_password_hash(request.form['password'])
+        user = User(username=request.form['username'], password_hash=hashed_pw)
+        db.session.add(user)
+        db.session.commit()
+        return redirect(url_for('login'))
+    content = "<h2>تسجيل حساب</h2><form method='POST'><input name='username' placeholder='اسم المستخدم' required><br><input name='password' type='password' placeholder='كلمة المرور' required><br><button type='submit'>إنشاء</button></form>"
+    return render_template_string(layout, content=content)
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        user = User.query.filter_by(username=request.form['username']).first()
+        if user and check_password_hash(user.password_hash, request.form['password']):
+            return "تم الدخول بأمان!"
+        return "خطأ في البيانات"
+    content = "<h2>تسجيل الدخول</h2><form method='POST'><input name='username' placeholder='اسم المستخدم' required><br><input name='password' type='password' placeholder='كلمة المرور' required><br><button type='submit'>دخول</button></form>"
+    return render_template_string(layout, content=content)
+
+if __name__ == '__main__':
+    app.run()

@@ -2,11 +2,11 @@ from flask import Flask, render_template_string, request, redirect, url_for
 
 app = Flask(__name__)
 
-# كود HTML للصفحة الرئيسية
+# --- كود الصفحة الرئيسية ---
 home_html = """
 <div style="text-align:center; padding-top:50px; font-family:Tahoma; background:#0f172a; color:white; min-height:100vh;">
     <h1>AETHER 369</h1>
-    <div class="card" style="width:300px; margin:auto; background:#1e293b; padding:20px; border-radius:15px;">
+    <div style="width:300px; margin:auto; background:#1e293b; padding:20px; border-radius:15px;">
         <h3>الاسم: عصام الكومي</h3>
         <p>رصيد USD 369.00</p>
         <a href="/login" style="color:white; display:block; margin:10px;">تسجيل الدخول</a>
@@ -15,7 +15,7 @@ home_html = """
 </div>
 """
 
-# كود HTML لصفحة تسجيل الدخول
+# --- كود صفحة تسجيل الدخول ---
 login_html = """
 <div style="text-align:center; padding-top:50px; font-family:Tahoma; background:#0f172a; color:white; min-height:100vh;">
     <h2>تسجيل الدخول</h2>
@@ -24,9 +24,11 @@ login_html = """
         <input type="password" name="password" placeholder="كلمة المرور" required style="padding:10px; margin:5px;"><br>
         <button type="submit" style="padding:10px 20px; margin:10px; background:#2561eb; color:white; border:none; border-radius:5px;">دخول</button>
     </form>
-    <a href="/" style="color:white;">العودة للرئيسية</a>
+    <a href="/" style="color:white; text-decoration:none;">العودة للرئيسية</a>
 </div>
 """
+
+# --- المسارات (Routes) ---
 
 @app.route('/')
 def home():
@@ -35,8 +37,8 @@ def home():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        # هنا يمكنك إضافة منطق التحقق من البيانات لاحقاً
-        return "تم إرسال بيانات الدخول بنجاح!"
+        # المرحلة القادمة: هنا سنربط بقاعدة البيانات
+        return "تم استلام البيانات بنجاح! نحن جاهزون للمرحلة التالية."
     return render_template_string(login_html)
 
 @app.route('/register')

@@ -5,13 +5,19 @@ app = Flask(__name__)
 
 def get_btc_price():
     try:
-        headers = {'User-Agent': 'Mozilla/5.0'}
-        response = requests.get('https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT', timeout=15, headers=headers)
+        # استخدام مهلة زمنية كافية وتجاهل التحقق من SSL لضمان استقرار الاتصال
+        response = requests.get('https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT', timeout=20, verify=False)
         data = response.json()
-        return f"{float(data['price']):,.0f}"
+        
+        # التأكد من أن البيانات تحتوي على السعر
+        if 'price' in data:
+            price = float(data['price'])
+            return f"{price:,.0f}"
+        else:
+            return "بيانات غير متوفرة"
     except Exception as e:
-        print(f"Connection Error: {e}")
-        return "جاري التحديث..."
+        # إذا حدث أي خطأ، سيرجع القيمة التالية
+        return "خطأ اتصال"
 
 @app.route('/')
 def home():

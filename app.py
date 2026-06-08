@@ -1,43 +1,47 @@
-from flask import Flask, render_template_string, request
+from flask import Flask, render_template_string, request, redirect, url_for
+from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
 
-# --- كود الواجهة الرئيسية ---
-home_html = """
-<div style="text-align:center; padding-top:50px; font-family:Tahoma; background:#0f172a; color:white; min-height:100vh;">
-    <h1>AETHER 369</h1>
-    <div style="width:300px; margin:auto; background:#1e293b; padding:20px; border-radius:15px;">
-        <h3>الاسم: عصام الكومي</h3>
-        <p>رصيد USD 369.00</p>
-        <a href="/login" style="color:white; display:block; margin:10px; text-decoration:none;">تسجيل الدخول</a>
-        <a href="/register" style="color:white; display:block; margin:10px; text-decoration:none;">إنشاء حساب جديد</a>
-    </div>
-</div>
-"""
+# تعريف جدول المستخدمين
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(50), unique=True, nullable=False)
+    password = db.Column(db.String(50), nullable=False)
 
-# --- كود صفحة تسجيل الدخول ---
-login_html = """
-<div style="text-align:center; padding-top:50px; font-family:Tahoma; background:#0f172a; color:white; min-height:100vh;">
-    <h2>تسجيل الدخول</h2>
-    <form method="POST" action="/login">
-        <input type="text" name="username" placeholder="اسم المستخدم" required style="padding:10px; margin:5px;"><br>
-        <input type="password" name="password" placeholder="كلمة المرور" required style="padding:10px; margin:5px;"><br>
-        <button type="submit" style="padding:10px 20px; margin:10px; background:#2561eb; color:white; border:none; border-radius:5px;">دخول</button>
-    </form>
-    <a href="/" style="color:white; text-decoration:none;">العودة للرئيسية</a>
-</div>
-"""
+# إنشاء قاعدة البيانات (يتم تنفيذها مرة واحدة)
+with app.app_context():
+    db.create_all()
 
+# --- الصفحات ---
 @app.route('/')
 def home():
-    return render_template_string(home_html)
+    return "مرحباً بك! <a href='/login'>تسجيل الدخول</a>"
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        # المرحلة القادمة: هنا سنربط بقاعدة البيانات لاحقاً
-        return "تم استلام البيانات بنجاح! نحن جاهزون للمرحلة التالية."
-    return render_template_string(login_html)
+        username = request.form.get('username')
+        password = request.form.get('password')
+        
+        # البحث عن المستخدم في قاعدة البيانات
+        user = User.query.filter_by(username=username, password=password).first()
+        
+        if user:
+            return f"تم تسجيل دخولك بنجاح يا {username}!"
+        else:
+            return "خطأ: اسم المستخدم أو كلمة المرور غير صحيحة."
+            
+    return render_template_string("""
+        <form method="POST">
+            <input type="text" name="username" placeholder="اسم المستخدم" required><br>
+            <input type="password" name="password" placeholder="كلمة المرور" required><br>
+            <button type="submit">دخول</button>
+        </form>
+    """)
 
 if __name__ == '__main__':
     app.run(debug=True)

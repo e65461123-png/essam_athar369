@@ -5,8 +5,11 @@ app = Flask(__name__)
 
 def get_btc_price():
     try:
-        response = requests.get('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd', timeout=5)
-        return response.json()['bitcoin']['usd']
+        # جلب السعر من Binance مباشرة
+        response = requests.get('https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT', timeout=10)
+        data = response.json()
+        price = float(data['price'])
+        return f"{price:,.2f}" # تنسيق الرقم ليظهر بشكل جميل
     except:
         return "N/A"
 

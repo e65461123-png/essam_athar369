@@ -2,7 +2,8 @@ from flask import Blueprint, render_template, request, redirect, url_for, sessio
 import sys
 import os
 
-# إضافة المجلد الرئيسي للمشروع إلى مسار الاستيراد لضمان رؤية مجلد models
+# هذا السطر يخبر بايثون أن يبحث في المجلد الرئيسي للمشروع 
+# مهما كان الملف الذي يحاول الاستيراد منه
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 main_bp = Blueprint('main', __name__)
@@ -13,6 +14,7 @@ def index():
 
 @main_bp.route('/dashboard')
 def dashboard():
+    # هنا قمنا بالاستيراد بعد إضافة المسار الرئيسي
     from models.models import User, Wallet
     if 'user_id' not in session:
         return redirect(url_for('main.login'))

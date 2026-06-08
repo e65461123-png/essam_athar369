@@ -1,13 +1,9 @@
-from flask import Flask, render_template, request, redirect, session
+from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from werkzeug.security import generate_password_hash, check_password_hash
 import os
 
-# إنشاء تطبيق Flask
 app = Flask(__name__)
-app.secret_key = os.environ.get("SECRET_KEY", "AETHER369_SECRET_KEY")
 
-# إعداد قاعدة البيانات
 db_url = os.environ.get("DATABASE_URL", "sqlite:///aether369.db")
 
 if db_url.startswith("postgres://"):
@@ -17,3 +13,11 @@ app.config["SQLALCHEMY_DATABASE_URI"] = db_url
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy(app)
+
+@app.route("/")
+def home():
+    return "AETHER 369 ONLINE ✅"
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)

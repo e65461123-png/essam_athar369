@@ -1,7 +1,42 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>AETHER 369 | منصة التداول</title>
+    <style>
+        body { background: #0a0e14; color: #fff; font-family: sans-serif; margin: 0; }
+        .dashboard-grid { display: grid; grid-template-columns: 1fr; gap: 10px; padding: 10px; }
+        header, section, footer { background: #16213e; padding: 15px; border-radius: 10px; border: 1px solid #333; }
+        .wallet-balance { font-size: 1.5em; color: #4ecca3; }
+        .price-box { font-size: 1.2em; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
 <div class="dashboard-grid">
-    <header class="wallet-balance"> <!-- قسم الرصيد العلوي --> </header>
-    <section class="live-prices"> <!-- قسم أسعار الأسواق الحية --> </section>
-    <section class="trading-engine"> <!-- محرك التداول الاحترافي --> </section>
-    <section class="security-vault"> <!-- إدارة الأمن والامتثال --> </section>
-    <footer class="market-ticker"> <!-- شريط الأسعار السفلي --> </footer>
+    <header class="wallet-balance">رصيد محفظتك: <span id="balance">$1,250.00</span></header>
+    
+    <section class="live-prices">
+        <h3>أسعار الأسواق الحية</h3>
+        <div class="price-box">بيتكوين (BTC): <span id="btc-price">جاري التحميل...</span> $</div>
+    </section>
+
+    <section class="trading-engine"><h3>محرك التداول الاحترافي</h3></section>
+    <section class="security-vault"><h3>إدارة الأمن والامتثال</h3></section>
+    <footer class="market-ticker">شريط الأسعار السفلي</footer>
 </div>
+
+<script>
+    function updatePrice() {
+        fetch('https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT')
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('btc-price').innerText = parseFloat(data.price).toLocaleString();
+            });
+    }
+    setInterval(updatePrice, 3000);
+    updatePrice();
+</script>
+
+</body>
+</html>

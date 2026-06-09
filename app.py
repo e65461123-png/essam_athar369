@@ -70,7 +70,23 @@ def login():
 # =====================
 # HOME PAGE (WALLET)
 # =====================
+HOME_HTML = 
 HOME_HTML = """
+<h2>مرحباً {{ user }}</h2>
+<p>رصيدك: USD {{ balance }}</p>
+
+<h3>إدارة الرصيد</h3>
+
+<form method="POST" action="/update_balance">
+    <input name="amount" type="number" step="0.01" placeholder="المبلغ" required>
+    <button name="action" value="deposit">إيداع</button>
+    <button name="action" value="withdraw">سحب</button>
+</form>
+
+<br>
+<a href="/logout">Logout</a>
+"""
+"""
 <h2>مرحباً {{ user }}</h2>
 <p>رصيدك: USD {{ balance }}</p>
 

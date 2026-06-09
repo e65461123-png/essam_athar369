@@ -1,14 +1,17 @@
 from flask import Flask, render_template_string, request, redirect, session
 import sqlite3
+import os
 
 app = Flask(__name__)
 app.secret_key = "secret_key_123"
 
+DB_NAME = "wallet.db"
+
 # =====================
-# DATABASE SETUP
+# INIT DATABASE
 # =====================
 def init_db():
-    conn = sqlite3.connect("wallet.db")
+    conn = sqlite3.connect(DB_NAME)
     c = conn.cursor()
 
     c.execute("""
@@ -20,7 +23,6 @@ def init_db():
     )
     """)
 
-    # مستخدم افتراضي
     c.execute("INSERT OR IGNORE INTO users (username, password, balance) VALUES (?, ?, ?)",
               ("admin", "1234", 369.0))
 
@@ -30,7 +32,7 @@ def init_db():
 init_db()
 
 # =====================
-# LOGIN PAGE
+# LOGIN
 # =====================
 LOGIN_HTML = """
 <h2>Login</h2>
@@ -39,7 +41,7 @@ LOGIN_HTML = """
     <input name="password" type="password" placeholder="Password"><br><br>
     <button type="submit">Login</button>
 </form>
-<p>{{ error }}</p>
+<p style="color:red;">{{ error }}</p>
 """
 
 @app.route("/login", methods=["GET", "POST"])
@@ -50,7 +52,7 @@ def login():
         username = request.form["username"]
         password = request.form["password"]
 
-        conn = sqlite3.connect("wallet.db")
+        conn = sqlite3.connect(DB_NAME)
         c = conn.cursor()
         c.execute("SELECT * FROM users WHERE username=? AND password=?", (username, password))
         user = c.fetchone()
@@ -65,12 +67,11 @@ def login():
     return render_template_string(LOGIN_HTML, error=error)
 
 # =====================
-# HOME (WALLET)
+# HOME
 # =====================
 HOME_HTML = """
 <h2>مرحباً {{ user }}</h2>
-<p>رصيدك الحالي: USD {{ balance }}</p>
-
+<p>رصيدك: USD {{ balance }}</p>
 <a href="/logout">Logout</a>
 """
 
@@ -79,7 +80,7 @@ def home():
     if "user" not in session:
         return redirect("/login")
 
-    conn = sqlite3.connect("wallet.db")
+    conn = sqlite3.connect(DB_NAME)
     c = conn.cursor()
     c.execute("SELECT balance FROM users WHERE username=?", (session["user"],))
     balance = c.fetchone()[0]
@@ -87,14 +88,14 @@ def home():
 
     return render_template_string(HOME_HTML, user=session["user"], balance=balance)
 
-# =====================
-# LOGOUT
-# =====================
 @app.route("/logout")
 def logout():
     session.clear()
     return redirect("/login")
 
 # =====================
+# ENTRY POINT FOR RENDER
+# =====================
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)

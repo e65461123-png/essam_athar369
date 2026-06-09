@@ -70,8 +70,7 @@ def login():
 # =====================
 # HOME PAGE (WALLET)
 # =====================
-HOME_HTML = 
-HOME_HTML = """
+HOME_HTML =
 <h2>مرحباً {{ user }}</h2>
 <p>رصيدك: USD {{ balance }}</p>
 
@@ -85,7 +84,6 @@ HOME_HTML = """
 
 <br>
 <a href="/logout">Logout</a>
-"""
 """
 <h2>مرحباً {{ user }}</h2>
 <p>رصيدك: USD {{ balance }}</p>

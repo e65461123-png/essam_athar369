@@ -23,7 +23,6 @@ def init_db():
     )
     """)
 
-    # مستخدم افتراضي
     c.execute("INSERT OR IGNORE INTO users (username, password, balance) VALUES (?, ?, ?)",
               ("admin", "1234", 369.0))
 
@@ -68,23 +67,9 @@ def login():
     return render_template_string(LOGIN_HTML, error=error)
 
 # =====================
-# HOME PAGE (WALLET)
+# HOME PAGE
 # =====================
-# HOME_HTML
-<h2>مرحباً {{ user }}</h2>
-<p>رصيدك: USD {{ balance }}</p>
-
-<h3>إدارة الرصيد</h3>
-
-<form method="POST" action="/update_balance">
-    <input name="amount" type="number" step="0.01" placeholder="المبلغ" required>
-    <button name="action" value="deposit">إيداع</button>
-    <button name="action" value="withdraw">سحب</button>
-</form>
-
-<br>
-<a href="/logout">Logout</a>
-"""
+HOME_HTML = """
 <h2>مرحباً {{ user }}</h2>
 <p>رصيدك: USD {{ balance }}</p>
 
@@ -114,14 +99,18 @@ def home():
     return render_template_string(HOME_HTML, user=session["user"], balance=balance)
 
 # =====================
-# UPDATE BALANCE
+# UPDATE BALANCE (داخل دالة صح)
 # =====================
 @app.route("/update_balance", methods=["POST"])
 def update_balance():
     if "user" not in session:
         return redirect("/login")
 
-    amount = float(request.form["amount"])
+    try:
+        amount = float(request.form["amount"])
+    except:
+        return "مبلغ غير صحيح"
+
     action = request.form["action"]
 
     conn = sqlite3.connect(DB_NAME)
@@ -132,10 +121,13 @@ def update_balance():
 
     if action == "deposit":
         balance += amount
-    elif action == "withdraw" and balance >= amount:
-        balance -= amount
+    elif action == "withdraw":
+        if balance >= amount:
+            balance -= amount
+        else:
+            return "رصيد غير كافي"
     else:
-        return "رصيد غير كافي"
+        return "عملية غير صحيحة"
 
     c.execute("UPDATE users SET balance=? WHERE username=?", (balance, session["user"]))
     conn.commit()
@@ -152,7 +144,7 @@ def logout():
     return redirect("/login")
 
 # =====================
-# RUN (Render ready)
+# RUN
 # =====================
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))

@@ -1,12 +1,13 @@
-from flask import Flask, render_template
+from flask import Flask
 
 app = Flask(__name__)
 
-# مسار الصفحة الرئيسية
-@app.route('/')
+@app.route("/")
 def home():
-    return render_template('index.html')
+    return """
+    <h1>AETHER 369 🚀</h1>
+    <p>الموقع يعمل بنجاح على Render</p>
+    """
 
-if __name__ == '__main__':
-    # تشغيل التطبيق بدون إعدادات معقدة
-    app.run()
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=10000)

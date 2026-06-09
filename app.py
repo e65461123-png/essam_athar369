@@ -1,151 +1,130 @@
-from flask import Flask, render_template_string, request, redirect, session
-import sqlite3
-import os
-
-app = Flask(__name__)
-app.secret_key = "secret_key_123"
-
-DB_NAME = "wallet.db"
-
-# =====================
-# INIT DATABASE
-# =====================
-def init_db():
-    conn = sqlite3.connect(DB_NAME)
-    c = conn.cursor()
-
-    c.execute("""
-    CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT UNIQUE,
-        password TEXT,
-        balance REAL DEFAULT 0
-    )
-    """)
-
-    c.execute("INSERT OR IGNORE INTO users (username, password, balance) VALUES (?, ?, ?)",
-              ("admin", "1234", 369.0))
-
-    conn.commit()
-    conn.close()
-
-init_db()
-
-# =====================
-# LOGIN PAGE
-# =====================
-LOGIN_HTML = """
-<h2>Login</h2>
-<form method="POST">
-    <input name="username" placeholder="Username"><br><br>
-    <input name="password" type="password" placeholder="Password"><br><br>
-    <button type="submit">Login</button>
-</form>
-<p style="color:red;">{{ error }}</p>
-"""
-
-@app.route("/login", methods=["GET", "POST"])
-def login():
-    error = ""
-
-    if request.method == "POST":
-        username = request.form["username"]
-        password = request.form["password"]
-
-        conn = sqlite3.connect(DB_NAME)
-        c = conn.cursor()
-        c.execute("SELECT * FROM users WHERE username=? AND password=?", (username, password))
-        user = c.fetchone()
-        conn.close()
-
-        if user:
-            session["user"] = username
-            return redirect("/")
-        else:
-            error = "بيانات غير صحيحة"
-
-    return render_template_string(LOGIN_HTML, error=error)
-
-# =====================
-# HOME PAGE
-# =====================
 HOME_HTML = """
-<h2>مرحباً {{ user }}</h2>
-<p>رصيدك: USD {{ balance }}</p>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Wallet Dashboard</title>
 
-<h3>إدارة الرصيد</h3>
+<style>
+body{
+    margin:0;
+    font-family: 'Segoe UI', sans-serif;
+    background: radial-gradient(circle at top, #0f172a, #020617);
+    color:white;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+}
 
-<form method="POST" action="/update_balance">
-    <input name="amount" type="number" step="0.01" placeholder="المبلغ" required>
-    <button name="action" value="deposit">إيداع</button>
-    <button name="action" value="withdraw">سحب</button>
-</form>
+/* خلفية متحركة خفيفة */
+body::before{
+    content:"";
+    position:absolute;
+    width:100%;
+    height:100%;
+    background: linear-gradient(45deg, #1e293b, #0f172a, #1e3a8a);
+    opacity:0.4;
+    filter: blur(60px);
+    z-index:-1;
+}
 
-<br>
-<a href="/logout">Logout</a>
+.card{
+    width:380px;
+    padding:25px;
+    border-radius:20px;
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 0 30px rgba(0,0,0,0.6);
+    border: 1px solid rgba(255,255,255,0.1);
+    text-align:center;
+}
+
+h2{
+    color:#38bdf8;
+    margin-bottom:5px;
+}
+
+.balance{
+    font-size:24px;
+    color:#22c55e;
+    margin:15px 0;
+}
+
+input{
+    width:90%;
+    padding:12px;
+    margin-top:10px;
+    border:none;
+    border-radius:10px;
+    outline:none;
+    font-size:15px;
+}
+
+.btn{
+    width:45%;
+    padding:12px;
+    margin-top:10px;
+    border:none;
+    border-radius:10px;
+    font-weight:bold;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+.deposit{
+    background:#22c55e;
+    color:white;
+}
+
+.withdraw{
+    background:#ef4444;
+    color:white;
+}
+
+.btn:hover{
+    transform: scale(1.05);
+}
+
+a{
+    display:block;
+    margin-top:15px;
+    color:#facc15;
+    text-decoration:none;
+}
+
+.badge{
+    font-size:12px;
+    opacity:0.7;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+    <div class="badge">💳 Secure Wallet System</div>
+
+    <h2>مرحباً {{ user }}</h2>
+
+    <div class="balance">
+        💰 USD {{ balance }}
+    </div>
+
+    <form method="POST" action="/update_balance">
+        <input name="amount" type="number" step="0.01" placeholder="أدخل المبلغ" required>
+
+        <div>
+            <button class="btn deposit" name="action" value="deposit">إيداع</button>
+            <button class="btn withdraw" name="action" value="withdraw">سحب</button>
+        </div>
+    </form>
+
+    <a href="/logout">Logout</a>
+
+</div>
+
+</body>
+</html>
 """
-
-@app.route("/")
-def home():
-    if "user" not in session:
-        return redirect("/login")
-
-    conn = sqlite3.connect(DB_NAME)
-    c = conn.cursor()
-    c.execute("SELECT balance FROM users WHERE username=?", (session["user"],))
-    balance = c.fetchone()[0]
-    conn.close()
-
-    return render_template_string(HOME_HTML, user=session["user"], balance=balance)
-
-# =====================
-# UPDATE BALANCE (داخل دالة صح)
-# =====================
-@app.route("/update_balance", methods=["POST"])
-def update_balance():
-    if "user" not in session:
-        return redirect("/login")
-
-    try:
-        amount = float(request.form["amount"])
-    except:
-        return "مبلغ غير صحيح"
-
-    action = request.form["action"]
-
-    conn = sqlite3.connect(DB_NAME)
-    c = conn.cursor()
-
-    c.execute("SELECT balance FROM users WHERE username=?", (session["user"],))
-    balance = c.fetchone()[0]
-
-    if action == "deposit":
-        balance += amount
-    elif action == "withdraw":
-        if balance >= amount:
-            balance -= amount
-        else:
-            return "رصيد غير كافي"
-    else:
-        return "عملية غير صحيحة"
-
-    c.execute("UPDATE users SET balance=? WHERE username=?", (balance, session["user"]))
-    conn.commit()
-    conn.close()
-
-    return redirect("/")
-
-# =====================
-# LOGOUT
-# =====================
-@app.route("/logout")
-def logout():
-    session.clear()
-    return redirect("/login")
-
-# =====================
-# RUN
-# =====================
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)

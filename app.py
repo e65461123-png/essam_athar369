@@ -23,6 +23,7 @@ def init_db():
     )
     """)
 
+    # مستخدم افتراضي
     c.execute("INSERT OR IGNORE INTO users (username, password, balance) VALUES (?, ?, ?)",
               ("admin", "1234", 369.0))
 
@@ -32,7 +33,7 @@ def init_db():
 init_db()
 
 # =====================
-# LOGIN
+# LOGIN PAGE
 # =====================
 LOGIN_HTML = """
 <h2>Login</h2>
@@ -67,11 +68,21 @@ def login():
     return render_template_string(LOGIN_HTML, error=error)
 
 # =====================
-# HOME
+# HOME PAGE (WALLET)
 # =====================
 HOME_HTML = """
 <h2>مرحباً {{ user }}</h2>
 <p>رصيدك: USD {{ balance }}</p>
+
+<h3>إدارة الرصيد</h3>
+
+<form method="POST" action="/update_balance">
+    <input name="amount" type="number" step="0.01" placeholder="المبلغ" required>
+    <button name="action" value="deposit">إيداع</button>
+    <button name="action" value="withdraw">سحب</button>
+</form>
+
+<br>
 <a href="/logout">Logout</a>
 """
 
@@ -88,13 +99,46 @@ def home():
 
     return render_template_string(HOME_HTML, user=session["user"], balance=balance)
 
+# =====================
+# UPDATE BALANCE
+# =====================
+@app.route("/update_balance", methods=["POST"])
+def update_balance():
+    if "user" not in session:
+        return redirect("/login")
+
+    amount = float(request.form["amount"])
+    action = request.form["action"]
+
+    conn = sqlite3.connect(DB_NAME)
+    c = conn.cursor()
+
+    c.execute("SELECT balance FROM users WHERE username=?", (session["user"],))
+    balance = c.fetchone()[0]
+
+    if action == "deposit":
+        balance += amount
+    elif action == "withdraw" and balance >= amount:
+        balance -= amount
+    else:
+        return "رصيد غير كافي"
+
+    c.execute("UPDATE users SET balance=? WHERE username=?", (balance, session["user"]))
+    conn.commit()
+    conn.close()
+
+    return redirect("/")
+
+# =====================
+# LOGOUT
+# =====================
 @app.route("/logout")
 def logout():
     session.clear()
     return redirect("/login")
 
 # =====================
-# ENTRY POINT FOR RENDER
+# RUN (Render ready)
 # =====================
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))

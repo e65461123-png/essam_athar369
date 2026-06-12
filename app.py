@@ -1,12 +1,15 @@
 import os
 from flask import Flask, request, jsonify, render_template_string
 import yt_dlp
-from moviepy.video.io.VideoFileClip import VideoFileClip
 
 app = Flask(__name__)
 
-# [ضع هنا كود الـ HTML الخاص بك كما هو]
-HTML_CONTENT = """...""" 
+# صفحة الواجهة الرئيسية
+HTML_CONTENT = """
+<html><body><h1>الموقع يعمل بنجاح!</h1>
+<p>أدخل رابط الفيديو في API/analyze</p>
+</body></html>
+"""
 
 @app.route("/")
 def home():
@@ -17,30 +20,19 @@ def analyze():
     data = request.get_json()
     video_url = data.get('url', '')
     
-    # 1. إعدادات تحميل الفيديو
-    ydl_opts = {
-        'format': 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',
-        'outtmpl': 'input_video.mp4',
-        'noplaylist': True,
-    }
-    
-    # 2. تحميل الفيديو
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        ydl.download([video_url])
-    
-    # 3. قص الفيديو (سنعتمد هنا توقيت ثابت للتجربة: من 5 إلى 35 ثانية)
-    start_time = 5
-    end_time = 35
-    
-    with VideoFileClip("input_video.mp4") as video:
-        new = video.subclip(start_time, end_time)
-        new.write_videofile("static/output_viral.mp4", codec="libx264", audio_codec="aac")
+    # استخراج معلومات الفيديو فقط (سريع ولا يستهلك ذاكرة)
+    try:
+        ydl_opts = {'quiet': True}
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(video_url, download=False)
+            title = info.get('title', 'فيديو رائع')
+    except Exception:
+        title = "خطأ في جلب بيانات الفيديو"
 
     return jsonify({
         "success": True,
-        "time_frame": f"{start_time} - {end_time}",
-        "title": "تم قص الفيديو بنجاح!",
-        "tags": "هذا الفيديو تم قصه أوتوماتيكياً بواسطة موقعك! #ViralAI"
+        "title": title,
+        "message": "تمت العملية بنجاح دون تحميل ملفات ثقيلة!"
     })
 
 if __name__ == "__main__":

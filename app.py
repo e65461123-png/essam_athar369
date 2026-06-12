@@ -5,8 +5,8 @@ from moviepy.video.io.VideoFileClip import VideoFileClip
 
 app = Flask(__name__)
 
-# [HTML_CONTENT كما هي لا تغيرها، فقط ضعها في بداية الملف]
-HTML_CONTENT = """...""" # (ضع نفس كود الـ HTML القديم هنا)
+# [ضع هنا كود الـ HTML الخاص بك كما هو]
+HTML_CONTENT = """...""" 
 
 @app.route("/")
 def home():
@@ -16,27 +16,31 @@ def home():
 def analyze():
     data = request.get_json()
     video_url = data.get('url', '')
-
-    # 1. تحميل الفيديو
-    ydl_opts = {'format': 'best', 'outtmpl': 'input_video.mp4'}
+    
+    # 1. إعدادات تحميل الفيديو
+    ydl_opts = {
+        'format': 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',
+        'outtmpl': 'input_video.mp4',
+        'noplaylist': True,
+    }
+    
+    # 2. تحميل الفيديو
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         ydl.download([video_url])
-
-    # 2. هنا نضع منطق Gemini (سيعطيك التوقيتات)
-    # سنفترض أن Gemini اختار القص من الثانية 5 إلى 35
+    
+    # 3. قص الفيديو (سنعتمد هنا توقيت ثابت للتجربة: من 5 إلى 35 ثانية)
     start_time = 5
     end_time = 35
-
-    # 3. قص الفيديو باستخدام MoviePy
+    
     with VideoFileClip("input_video.mp4") as video:
         new = video.subclip(start_time, end_time)
-        new.write_videofile("output_viral.mp4", codec="libx264")
+        new.write_videofile("static/output_viral.mp4", codec="libx264", audio_codec="aac")
 
     return jsonify({
         "success": True,
         "time_frame": f"{start_time} - {end_time}",
-        "title": "تم قص مقطع فيروسي بنجاح!",
-        "tags": "#تجربة #نجاح #Viral"
+        "title": "تم قص الفيديو بنجاح!",
+        "tags": "هذا الفيديو تم قصه أوتوماتيكياً بواسطة موقعك! #ViralAI"
     })
 
 if __name__ == "__main__":

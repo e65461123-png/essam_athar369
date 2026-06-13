@@ -2,3 +2,4 @@ Flask
 gunicorn
 yt-dlp
 moviepy
+psycopg2-binary

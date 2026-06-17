@@ -1,16 +1,11 @@
-from flask import Flask, request, jsonify
+from flask import Flask
 
 app = Flask(__name__)
 
-# قاعدة بيانات وهمية في الذاكرة (سريعة وخفيفة)
-discoveries = []
-
-@app.route('/report', methods=['POST'])
-def report():
-    data = request.json
-    discoveries.append(data)
-    print(f"📡 القائد تلقى بلاغاً: {data}")
-    return jsonify({"status": "received"}), 200
+# هذا المسار يحل مشكلة الـ 404 عند فتح الرابط الرئيسي
+@app.route('/')
+def home():
+    return "🚀 النظام يعمل: مركز القيادة السحابي للقائد الأعلى جاهز."
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    app.run()

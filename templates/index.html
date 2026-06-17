@@ -1,32 +1,42 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html dir="rtl" lang="ar">
 <head>
     <meta charset="UTF-8">
-    <title>موقع الأبطال 🔥</title>
-    <style>
-        body { background: #1a1a2e; color: #fff; font-family: sans-serif; display: flex; justify-content: center; padding: 20px; }
-        .card { background: #22223b; padding: 25px; border-radius: 20px; width: 100%; max-width: 500px; box-shadow: 0 0 20px rgba(127, 90, 240, 0.3); }
-        input, textarea { width: 90%; padding: 10px; margin: 10px 0; border-radius: 10px; border: none; }
-        button { background: #7f5af0; color: #fff; padding: 10px 20px; border: none; border-radius: 20px; cursor: pointer; }
-        .msg { background: #2d2d44; padding: 10px; margin-top: 10px; border-radius: 10px; }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تطبيقي الذكي</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-    <div class="card">
-        <h2>🚀 مرحباً بك!</h2>
-        <form method="POST">
-            <input type="text" name="user" placeholder="اسمك" required>
-            <textarea name="content" placeholder="اكتب أي حاجة..." required></textarea>
-            <button type="submit">💥 انشر الرسالة</button>
-        </form>
-        <hr>
-        <h3>📜 رسائل الأبطال:</h3>
-        {% for msg in messages %}
-            <div class="msg">
-                <strong>{{ msg.user }}</strong>: {{ msg.content }} <br>
-                <small style="color: #aaa;">{{ msg.timestamp }}</small>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('home') }}">🚀 تطبيقي</a>
+            <div class="navbar-nav ms-auto">
+                {% if session.user_id %}
+                    <span class="navbar-text text-light">مرحباً {{ session.username }}</span>
+                    <a class="nav-link" href="{{ url_for('logout') }}">تسجيل خروج</a>
+                {% else %}
+                    <a class="nav-link" href="{{ url_for('login') }}">دخول</a>
+                    <a class="nav-link" href="{{ url_for('register') }}">تسجيل</a>
+                {% endif %}
             </div>
-        {% endfor %}
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

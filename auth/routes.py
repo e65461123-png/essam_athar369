@@ -1,6 +1,7 @@
+from flask import Blueprint
 
-from . import auth_bp
+auth_bp = Blueprint("auth", __name__)
 
-@auth_bp.route('/login')
-def login():
-    return "صفحة تسجيل الدخول"
+@auth_bp.route("/")
+def home():
+    return "Auth Blueprint Working"

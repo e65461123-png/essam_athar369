@@ -1,1 +1,128 @@
+{% extends "base.html" %}
 
+{% block title %}البحث عن فرد{% endblock %}
+
+{% block content %}
+<h3 style="color: #2d3748; margin-bottom: 20px;">🔍 ابحث عن فرد</h3>
+
+<form method="POST" action="/report" style="margin-bottom: 25px;">
+    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <input type="text" 
+               name="name" 
+               placeholder="أدخل اسم الفرد..." 
+               required
+               style="
+                   flex: 1;
+                   padding: 12px 18px;
+                   border: 2px solid #e2e8f0;
+                   border-radius: 10px;
+                   font-size: 16px;
+                   min-width: 200px;
+               ">
+        <button type="submit" 
+                style="
+                    background: #8247e5;
+                    color: white;
+                    padding: 12px 30px;
+                    border: none;
+                    border-radius: 10px;
+                    font-size: 16px;
+                    cursor: pointer;
+                    transition: 0.3s;
+                    font-weight: bold;
+                "
+                onmouseover="this.style.background='#6b46c1'"
+                onmouseout="this.style.background='#8247e5'">
+            🔍 بحث
+        </button>
+    </div>
+</form>
+
+<!-- عرض النتائج -->
+<div style="
+    background: #f7fafc;
+    border-radius: 12px;
+    padding: 20px;
+    min-height: 100px;
+    border: 2px dashed #e2e8f0;
+">
+
+    {% if result is not none %}
+        <!-- إذا كانت النتيجة خطأ (نص) -->
+        {% if result is string %}
+            <div style="text-align: center; color: #e53e3e; padding: 20px 0;">
+                ⚠️ {{ result }}
+            </div>
+        
+        <!-- إذا كانت النتيجة قائمة (نتائج البحث) -->
+        {% else %}
+            {% if result|length == 0 %}
+                <div style="text-align: center; color: #a0aec0; padding: 20px 0;">
+                    ❌ لا توجد نتائج مطابقة للبحث
+                </div>
+            {% else %}
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    {% for person in result %}
+                    <div style="
+                        background: white;
+                        padding: 15px 20px;
+                        border-radius: 10px;
+                        border-right: 4px solid #8247e5;
+                        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+                    ">
+                        <div style="font-weight: bold; color: #2d3748; font-size: 17px;">
+                            👤 {{ person[1] }}
+                        </div>
+                        <div style="color: #718096; font-size: 14px; margin-top: 5px;">
+                            🎂 العمر: {{ person[2] }} سنة
+                        </div>
+                        <div style="color: #718096; font-size: 14px;">
+                            👨‍👩‍👧‍👦 الصلة: {{ person[3] if person[3] else 'غير محدد' }}
+                        </div>
+                        {% if person[4] %}
+                        <div style="color: #718096; font-size: 14px;">
+                            📱 الهاتف: {{ person[4] }}
+                        </div>
+                        {% endif %}
+                        {% if person[5] %}
+                        <div style="color: #718096; font-size: 14px;">
+                            📍 العنوان: {{ person[5] }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                <div style="margin-top: 15px; color: #a0aec0; font-size: 13px;">
+                    عدد النتائج: {{ result|length }}
+                </div>
+            {% endif %}
+        {% endif %}
+    
+    {% else %}
+        <!-- الحالة الافتراضية (لم يبحث بعد) -->
+        <div style="text-align: center; color: #a0aec0; padding: 20px 0;">
+            ⬅️ اكتب اسماً في الأعلى واضغط "بحث"
+        </div>
+    {% endif %}
+</div>
+
+<!-- زر مسح البحث -->
+{% if result is not none %}
+<div style="margin-top: 15px; text-align: center;">
+    <a href="/report" style="
+        color: #718096;
+        font-size: 14px;
+        text-decoration: none;
+        padding: 8px 20px;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        transition: 0.3s;
+    "
+    onmouseover="this.style.background='#f7fafc'"
+    onmouseout="this.style.background='transparent'">
+        🔄 مسح البحث
+    </a>
+</div>
+{% endif %}
+
+{% endblock %}

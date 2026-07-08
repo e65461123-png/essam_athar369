@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -82,3 +83,49 @@
     </div>
 </body>
 </html>
+=======
+{% extends "base.html" %}
+
+{% block title %}الرئيسية{% endblock %}
+
+{% block content %}
+<div style="text-align: center; padding: 30px 0;">
+    <h2 style="color: #2d3748; margin-bottom: 15px;">👋 مرحباً بك</h2>
+    <p style="color: #718096; margin-bottom: 30px; line-height: 1.8;">
+        هذا التطبيق يسمح لك بالبحث عن بيانات الأفراد<br>
+        في قاعدة البيانات بكل سهولة وسرعة.
+    </p>
+    
+    <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+        <a href="/report" style="
+            background: #8247e5;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 12px;
+            text-decoration: none;
+            transition: 0.3s;
+            display: inline-block;
+        ">🔍 ابدأ البحث</a>
+        
+        <a href="/all" style="
+            background: #48bb78;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 12px;
+            text-decoration: none;
+            transition: 0.3s;
+            display: inline-block;
+        ">📋 عرض الكل</a>
+    </div>
+
+    <div style="margin-top: 40px; background: #f7fafc; padding: 20px; border-radius: 12px;">
+        <p style="color: #a0aec0; font-size: 13px;">
+            ⚡ API متاحة للاستخدام:<br>
+            <code style="background: #edf2f7; padding: 4px 8px; border-radius: 4px; direction: ltr; display: inline-block; margin-top: 5px;">
+                /api/search/أحمد
+            </code>
+        </p>
+    </div>
+</div>
+{% endblock %}
+>>>>>>> 665b8ca6f6783d22cbee3b930bbb6395f151376f

@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}جميع الأفراد{% endblock %}
+
+{% block content %}
+<h3 style="color: #2d3748; margin-bottom: 20px;">📋 قائمة جميع الأفراد</h3>
+
+{% if people %}
+    <div style="display: flex; flex-direction: column; gap: 10px;">
+        {% for person in people %}
+        <div style="
+            background: #f7fafc;
+            padding: 15px 20px;
+            border-radius: 10px;
+            border-right: 4px solid #8247e5;
+        ">
+            <div style="font-weight: bold; color: #2d3748;">👤 {{ person[1] }}</div>
+            <div style="color: #718096; font-size: 14px;">
+                العمر: {{ person[2] }} سنة | 
+                الصلة: {{ person[3] if person[3] else 'غير محدد' }} |
+                الهاتف: {{ person[4] if person[4] else 'غير مسجل' }}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <div style="margin-top: 15px; color: #a0aec0; font-size: 13px;">
+        عدد الأفراد: {{ people|length }}
+    </div>
+{% else %}
+    <div style="text-align: center; color: #a0aec0; padding: 40px 0;">
+        ❌ لا توجد بيانات
+    </div>
+{% endif %}
+{% endblock %}

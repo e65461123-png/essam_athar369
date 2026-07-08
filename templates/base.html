@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}نظام البحث{% endblock %}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Tahoma', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            direction: rtl;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            width: 90%;
+            max-width: 700px;
+            margin: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #2d3748;
+            font-size: 28px;
+        }
+        .header .subtitle {
+            color: #718096;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        .polygon-badge {
+            display: inline-block;
+            background: #8247e5;
+            color: white;
+            padding: 4px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+        .nav {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 25px;
+        }
+        .nav a {
+            color: #4a5568;
+            text-decoration: none;
+            padding: 8px 20px;
+            border-radius: 10px;
+            transition: 0.3s;
+            font-size: 14px;
+        }
+        .nav a:hover {
+            background: #f0f4f8;
+            color: #8247e5;
+        }
+        .content {
+            min-height: 200px;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
+            color: #a0aec0;
+            font-size: 12px;
+        }
+        .footer a {
+            color: #8247e5;
+            text-decoration: none;
+        }
+        {% block extra_css %}{% endblock %}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 {{ self.title() }}</h1>
+            <div class="subtitle">منصة البحث عن بيانات الأفراد</div>
+            <div class="polygon-badge">⛓️ Polygon Smart Commerce Challenge</div>
+        </div>
+
+        <div class="nav">
+            <a href="/">🏠 الرئيسية</a>
+            <a href="/report">🔍 البحث</a>
+            <a href="/all">📋 الجميع</a>
+        </div>
+
+        <div class="content">
+            {% block content %}{% endblock %}
+        </div>
+
+        <div class="footer">
+            © 2026 | مشروع لمسابقة Polygon | 
+            <a href="https://github.com/essam_athar369" target="_blank">GitHub</a>
+        </div>
+    </div>
+</body>
+  </html>

@@ -8,11 +8,7 @@ def home():
 
 @app.route('/about')
 def about():
-    return '''
-    <h1>هذا عنوان رئيسي - صفحة عن</h1>
-    <p>هذه فقرة نصية توضح محتوى صفحة عن.</p>
-    <a href="/">العودة للرئيسية</a>
-    '''
+    return render_template('about.html')
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000, debug=True)

@@ -6,10 +6,55 @@
 
 {% block content %}
     <div class="content">
-        <p><i class="fas fa-envelope"></i> info@ai-builder-hub.com</p>
-        <p><i class="fas fa-phone"></i> +966 55 555 5555</p>
-        <p><i class="fas fa-map-pin"></i> الرياض، المملكة العربية السعودية</p>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+            <div>
+                <h3 style="color: white; margin-bottom: 20px;">
+                    <i class="fas fa-map-marker-alt" style="color: #667eea;"></i> معلومات الاتصال
+                </h3>
+                <p><i class="fas fa-envelope" style="color: #667eea; width: 25px;"></i> info@ai-builder-hub.com</p>
+                <p><i class="fas fa-phone" style="color: #667eea; width: 25px;"></i> +966 55 555 5555</p>
+                <p><i class="fas fa-map-pin" style="color: #667eea; width: 25px;"></i> الرياض، المملكة العربية السعودية</p>
+                <p><i class="fas fa-clock" style="color: #667eea; width: 25px;"></i> السبت - الخميس: 9 ص - 6 م</p>
+
+                <div style="margin-top: 30px;">
+                    <h4 style="color: white; margin-bottom: 15px;">تابعنا</h4>
+                    <div style="display: flex; gap: 15px;">
+                        <a href="#" style="color: white; font-size: 1.8em; transition: 0.3s;" onmouseover="this.style.color='#1877f2'" onmouseout="this.style.color='white'">
+                            <i class="fab fa-facebook"></i>
+                        </a>
+                        <a href="#" style="color: white; font-size: 1.8em; transition: 0.3s;" onmouseover="this.style.color='#1da1f2'" onmouseout="this.style.color='white'">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" style="color: white; font-size: 1.8em; transition: 0.3s;" onmouseover="this.style.color='#e4405f'" onmouseout="this.style.color='white'">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#" style="color: white; font-size: 1.8em; transition: 0.3s;" onmouseover="this.style.color='#0a66c2'" onmouseout="this.style.color='white'">
+                            <i class="fab fa-linkedin"></i>
+                        </a>
+                        <a href="#" style="color: white; font-size: 1.8em; transition: 0.3s;" onmouseover="this.style.color='#00acee'" onmouseout="this.style.color='white'">
+                            <i class="fab fa-telegram"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <h3 style="color: white; margin-bottom: 20px;">
+                    <i class="fas fa-paper-plane" style="color: #f093fb;"></i> أرسل رسالة
+                </h3>
+                <form style="display: flex; flex-direction: column; gap: 15px;">
+                    <input type="text" placeholder="الاسم الكامل" style="padding: 12px; border-radius: 10px; border: none; background: rgba(255,255,255,0.1); color: white; font-size: 1em;">
+                    <input type="email" placeholder="البريد الإلكتروني" style="padding: 12px; border-radius: 10px; border: none; background: rgba(255,255,255,0.1); color: white; font-size: 1em;">
+                    <input type="text" placeholder="الموضوع" style="padding: 12px; border-radius: 10px; border: none; background: rgba(255,255,255,0.1); color: white; font-size: 1em;">
+                    <textarea placeholder="نص الرسالة" rows="4" style="padding: 12px; border-radius: 10px; border: none; background: rgba(255,255,255,0.1); color: white; font-size: 1em; resize: vertical;"></textarea>
+                    <button type="submit" class="btn" style="width: 100%; justify-content: center;">
+                        <i class="fas fa-send"></i> إرسال
+                    </button>
+                </form>
+            </div>
+        </div>
     </div>
+
     <div class="btn-group">
         <a href="/" class="btn">
             <i class="fas fa-home"></i> الرئيسية

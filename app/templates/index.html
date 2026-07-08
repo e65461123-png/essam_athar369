@@ -1,62 +1,47 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>الصفحة الرئيسية</title>
-    <style>
-        body {
-            font-family: 'Tahoma', Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: 0;
-            padding: 20px;
-        }
-        .container {
-            background: white;
-            border-radius: 20px;
-            padding: 50px;
-            max-width: 600px;
-            width: 100%;
-            text-align: center;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-        }
-        h1 {
-            color: #2c3e50;
-            font-size: 2.5em;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        p {
-            font-size: 1.2em;
-            color: #555;
-            line-height: 1.8;
-        }
-        .btn {
-            display: inline-block;
-            margin-top: 20px;
-            padding: 12px 30px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            text-decoration: none;
-            border-radius: 50px;
-            font-size: 1.1em;
-            transition: transform 0.3s;
-        }
-        .btn:hover {
-            transform: scale(1.05);
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>🚀 هذا عنوان رئيسي</h1>
-        <p>هذه فقرة نصية توضح محتوى الصفحة.</p>
-        <a href="/about" class="btn">📖 انتقل إلى صفحة عن</a>
+{% extends "base.html" %}
+
+{% block title %}الرئيسية - AI Builder Hub{% endblock %}
+{% block title_header %}مرحباً بك في عالم الذكاء الاصطناعي 🚀{% endblock %}
+{% block subtitle %}نبني المستقبل بتقنيات اليوم{% endblock %}
+
+{% block content %}
+    <div class="content">
+        <p style="font-size: 1.3em; text-align: center;">
+            <i class="fas fa-rocket" style="color: #667eea;"></i>
+            منصتك المتكاملة لبناء ونشر تطبيقات الذكاء الاصطناعي بكل سهولة واحترافية
+        </p>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🧠</div>
+                <div class="feature-title">ذكاء اصطناعي</div>
+                <div class="feature-desc">نماذج متقدمة للتعلم العميق</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">⚡</div>
+                <div class="feature-title">أداء فائق</div>
+                <div class="feature-desc">معالجة سريعة ودقيقة</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🌐</div>
+                <div class="feature-title">دعم عربي</div>
+                <div class="feature-desc">واجهة متكاملة باللغة العربية</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔒</div>
+                <div class="feature-title">آمان تام</div>
+                <div class="feature-desc">حماية بياناتك بأعلى المعايير</div>
+            </div>
+        </div>
     </div>
-</body>
-</html>
+    <div class="btn-group">
+        <a href="/about" class="btn">
+            <i class="fas fa-info-circle"></i> تعرف علينا
+        </a>
+        <a href="/services" class="btn btn-success">
+            <i class="fas fa-cogs"></i> خدماتنا
+        </a>
+        <a href="/contact" class="btn btn-secondary">
+            <i class="fas fa-envelope"></i> تواصل معنا
+        </a>
+    </div>
+{% endblock %}

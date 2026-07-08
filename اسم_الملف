@@ -1,0 +1,91 @@
+cat > ~/AI_Builder_Hub/astro_camera.py << 'EOF'
+#!/usr/bin/env python3
+"""
+🔭 نظام مراقبة النجوم والقمر - AI Builder Hub
+يتيح لك مراقبة حركة الأجرام السماوية باستخدام كاميرا هاتفك
+"""
+
+import subprocess
+import os
+import time
+from datetime import datetime
+
+class AstroCamera:
+    def __init__(self):
+        self.settings = {
+            "interval": 5,
+            "duration": 60,
+            "output_dir": "astro_captures"
+        }
+        self.create_output_dir()
+
+    def create_output_dir(self):
+        if not os.path.exists(self.settings["output_dir"]):
+            os.makedirs(self.settings["output_dir"])
+            print(f"✅ تم إنشاء مجلد: {self.settings['output_dir']}")
+
+    def capture_image(self, label="frame"):
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"{self.settings['output_dir']}/{label}_{timestamp}.jpg"
+        
+        try:
+            subprocess.run(["termux-camera-photo", filename], 
+                         check=True, timeout=10)
+            print(f"📸 تم التقاط: {filename}")
+            return filename
+        except Exception as e:
+            print(f"❌ خطأ: {e}")
+            return None
+
+    def monitor_sky(self, duration=60, interval=5):
+        print(f"""
+        🔭 بدء مراقبة السماء
+        ⏱️ المدة: {duration} ثانية
+        ⏳ بين كل صورة: {interval} ثانية
+        """)
+        
+        start_time = time.time()
+        captured = []
+        
+        while time.time() - start_time < duration:
+            img = self.capture_image("sky")
+            if img:
+                captured.append(img)
+            time.sleep(interval)
+        
+        print(f"""
+        ✅ انتهت المراقبة
+        📸 عدد الصور الملتقطة: {len(captured)}
+        📁 مجلد الصور: {self.settings['output_dir']}
+        """)
+        return captured
+
+def main():
+    camera = AstroCamera()
+    
+    print("""
+    ╔══════════════════════════════════════════════════════════╗
+    ║   🔭 نظام مراقبة النجوم والقمر                        ║
+    ║  1. مراقبة السماء (تصوير متقطع)                     ║
+    ║  2. خروج                                           ║
+    ╚══════════════════════════════════════════════════════════╝
+    """)
+    
+    while True:
+        choice = input("🔭 اختر خيار (1-2): ")
+        
+        if choice == "1":
+            duration = int(input("⏱️ مدة المراقبة بالثواني (60-300): ") or "60")
+            interval = int(input("⏳ الفاصل بين الصور بالثواني (2-10): ") or "5")
+            camera.monitor_sky(duration, interval)
+        
+        elif choice == "2":
+            print("👋 مع السلامة!")
+            break
+        
+        else:
+            print("❌ خيار غير صحيح")
+
+if __name__ == "__main__":
+    main()
+EOF

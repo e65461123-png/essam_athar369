@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Builder Hub - EssamElkomy 369</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
+        body { background: #0a0a0a; color: #fff; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+        .container { max-width: 900px; width: 100%; }
+        .card {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(20px);
+            padding: 40px;
+            border-radius: 30px;
+            border: 1px solid rgba(255,215,0,0.2);
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .card h1 { color: #FFD700; font-size: 32px; margin-bottom: 10px; }
+        .card .gold { color: #FFD700; font-size: 24px; }
+        .card p { margin: 10px 0; color: #ccc; }
+        .btn {
+            display: inline-block; padding: 10px 20px; margin: 5px;
+            border-radius: 30px; text-decoration: none; font-weight: bold;
+            background: #FFD700; color: #000; transition: 0.3s;
+        }
+        .btn:hover { transform: scale(1.05); box-shadow: 0 0 20px #FFD700; }
+        .btn-out { background: transparent; border: 1px solid #FFD700; color: #FFD700; }
+        .btn-out:hover { background: #FFD700; color: #000; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; }
+        .icon-card {
+            background: rgba(255,255,255,0.03);
+            padding: 20px;
+            border-radius: 16px;
+            border: 1px solid rgba(255,215,0,0.1);
+            text-align: center;
+            transition: 0.3s;
+            text-decoration: none;
+            color: #fff;
+        }
+        .icon-card:hover { border-color: #FFD700; transform: translateY(-5px); }
+        .icon-card i { font-size: 40px; color: #FFD700; display: block; margin-bottom: 8px; }
+        .icon-card span { font-size: 14px; color: #ccc; }
+        .contact-info { margin-top: 20px; padding: 20px; background: rgba(255,215,0,0.05); border-radius: 16px; }
+        .contact-info p { margin: 8px 0; color: #aaa; }
+        .contact-info .highlight { color: #FFD700; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h1>🚀 AI Builder Hub</h1>
+            <p>مرحباً <span class="gold">{{ username }}</span>!</p>
+            <p>💰 الرصيد: <span class="gold">{{ balance }} دولار</span></p>
+            <p>👑 المستوى: <span class="gold">{{ level }}</span></p>
+            <br>
+            <a href="/login" class="btn">🔐 تسجيل دخول</a>
+            <a href="/admin_panel" class="btn">⚙️ لوحة التحكم</a>
+            <a href="/pay" class="btn">💰 شحن</a>
+            <a href="/chat" class="btn">🤖 شات</a>
+            <a href="/logout" class="btn btn-out">🚪 تسجيل خروج</a>
+        </div>
+
+        <div class="grid">
+            <a href="/store" class="icon-card"><i class="fas fa-store"></i><span>المتجر</span></a>
+            <a href="/courses" class="icon-card"><i class="fas fa-graduation-cap"></i><span>الدورات</span></a>
+            <a href="/crypto" class="icon-card"><i class="fas fa-coins"></i><span>عملات رقمية</span></a>
+            <a href="/live" class="icon-card"><i class="fas fa-broadcast-tower"></i><span>بث مباشر</span></a>
+            <a href="/marketing" class="icon-card"><i class="fas fa-bullhorn"></i><span>تسويق ذكي</span></a>
+            <a href="/support" class="icon-card"><i class="fas fa-headset"></i><span>دعم فني</span></a>
+            <a href="/reports" class="icon-card"><i class="fas fa-chart-bar"></i><span>تقارير</span></a>
+            <a href="/osint" class="icon-card"><i class="fas fa-search"></i><span>استطلاع</span></a>
+        </div>
+
+        <div class="contact-info">
+            <p><i class="fas fa-envelope"></i> البريد الإلكتروني: <span class="highlight">e65461123@gmail.com</span></p>
+            <p><i class="fab fa-whatsapp"></i> واتساب: <span class="highlight">+20 102 166 4984</span></p>
+            <p><i class="fas fa-university"></i> الحساب البنكي: <span class="highlight">EG05 **** **** **** **** 010105904</span></p>
+        </div>
+    </div>
+</body>
+</html>
